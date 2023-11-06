@@ -24,7 +24,7 @@ public class BlockRepositoryImpl implements BlockRepository {
     @Override
     public boolean persistBlock(BlockEntity blockEntity) {
         try{
-            entityManagerFactory.persist(blockEntity);
+            entityManagerFactory.merge(blockEntity);
             return true;
          }catch (Exception e){
         e.printStackTrace();
@@ -91,5 +91,11 @@ public class BlockRepositoryImpl implements BlockRepository {
     public int getLastIndex() {
         Query query = entityManagerFactory.createQuery("SELECT COUNT(e) FROM BlockEntity e");
         return  (int) (long) query.getSingleResult();
+    }
+
+    @Override
+    public void deleteAllBlocks() {
+        Query query = entityManagerFactory.createQuery("DELETE FROM BlockEntity ");
+
     }
 }

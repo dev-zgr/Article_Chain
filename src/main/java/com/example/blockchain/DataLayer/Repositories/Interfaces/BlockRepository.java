@@ -28,5 +28,5 @@ public interface BlockRepository {
     int getLastIndex();
 
 
-
+    void deleteAllBlocks();
 }

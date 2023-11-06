@@ -16,7 +16,6 @@ public class BlockEntity {
 
     @Id
     @Column(name = "index_no")
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int indexNo;
 
     @Column(name = "timestamp")
@@ -34,7 +33,7 @@ public class BlockEntity {
     @Column(name = "merkle_root")
     private String merkleRoot;
 
-    @OneToMany(fetch = FetchType.LAZY , cascade = CascadeType.ALL )
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "block_id")
     List<TransactionEntity> transactionList;
 
@@ -44,24 +43,34 @@ public class BlockEntity {
         this.previousBlockHash = previousHash;
         this.transactionList = new ArrayList<>();
         this.timestamp = new Date().toString();
+        this.merkleRoot = calculateMerkleRoot();
     }
 
     public BlockEntity(int index, String timeStamp, int nonce, String previousHash, TransactionEntity transaction) {
         this.indexNo = index;
         this.nonce = nonce;
         this.previousBlockHash = previousHash;
-        this.currentBlockHash = calculateHash();
         this.transactionList = List.of(transaction);
         this.timestamp = new Date().toString();
         this.merkleRoot = calculateMerkleRoot();
+        this.currentBlockHash = this.calculateHash();
     }
 
     public BlockEntity() {
         nonce = 0;
-        previousBlockHash  = timestamp = null;
+        previousBlockHash  = timestamp =merkleRoot = null;
         transactionList = new ArrayList<>();
     }
 
+    public BlockEntity(int index, int nonce, String previousHash, ArrayList<TransactionEntity> transaction) {
+        this.indexNo = index;
+        this.nonce = nonce;
+        this.previousBlockHash = previousHash;
+        this.transactionList = transaction;
+        this.timestamp = new Date().toString();
+        this.currentBlockHash = calculateHash();
+        this.merkleRoot = calculateMerkleRoot();
+    }
 
 
     public String calculateHash(){
@@ -88,40 +97,47 @@ public class BlockEntity {
     public String calculateMerkleRoot(){
         List<String> transactionHashes = new ArrayList<>();
 
-        for (TransactionEntity transaction : transactionList) {
-            transactionHashes.add(transaction.calculateTransactionHash());
-        }
-
-        while (transactionHashes.size() > 1) {
-            List<String> newHashes = new ArrayList<>();
-
-            for (int i = 0; i < transactionHashes.size(); i += 2) {
-                String combinedHash = transactionHashes.get(i);
-                if (i + 1 < transactionHashes.size()) {
-                    combinedHash += transactionHashes.get(i + 1);
-                }
-
-                try {
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    byte[] hashBytes = digest.digest(combinedHash.getBytes());
-
-                    StringBuilder hexString = new StringBuilder();
-                    for (byte hashByte : hashBytes) {
-                        String hex = Integer.toHexString(0xff & hashByte);
-                        if (hex.length() == 1)
-                            hexString.append('0');
-                        hexString.append(hex);
-                    }
-                    newHashes.add(hexString.toString());
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+        if(transactionHashes.size() == 0){
+            return "000000000000";
+        }else{
+            for (TransactionEntity transaction : transactionList) {
+                transactionHashes.add(transaction.calculateTransactionHash());
             }
 
-            transactionHashes = newHashes;
+            while (transactionHashes.size() > 1) {
+                List<String> newHashes = new ArrayList<>();
+
+                for (int i = 0; i < transactionHashes.size(); i += 2) {
+                    String combinedHash = transactionHashes.get(i);
+                    if (i + 1 < transactionHashes.size()) {
+                        combinedHash += transactionHashes.get(i + 1);
+                    }
+
+                    try {
+                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                        byte[] hashBytes = digest.digest(combinedHash.getBytes());
+
+                        StringBuilder hexString = new StringBuilder();
+                        for (byte hashByte : hashBytes) {
+                            String hex = Integer.toHexString(0xff & hashByte);
+                            if (hex.length() == 1)
+                                hexString.append('0');
+                            hexString.append(hex);
+                        }
+                        newHashes.add(hexString.toString());
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+
+                transactionHashes = newHashes;
+            }
+
+
+            return transactionHashes.get(0);
         }
 
-        return transactionHashes.get(0);
+
     }
 }

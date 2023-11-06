@@ -17,7 +17,7 @@ public class BlockChainModel {
     private List<TransactionEntity> transactionEntities;
 
     public BlockChainModel(){
-        uuid = UUID.randomUUID();
+        uuid = new UUID(0,0);
         transactionEntities = new ArrayList<>();
     }
 
