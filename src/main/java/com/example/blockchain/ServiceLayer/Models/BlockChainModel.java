@@ -1,8 +1,10 @@
 package com.example.blockchain.ServiceLayer.Models;
 
+import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import lombok.Data;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,4 +58,54 @@ public class BlockChainModel {
         }
         return hexString.toString();
     }
+
+    public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock){
+        try{
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+                if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
+
+                    return false;
+                }
+
+                var previousNonce = previousBlock.getNonce();
+                var currentNonce = currentBlock.getNonce();
+
+                String hashOps = bytesToHex(md.digest(String.valueOf(currentNonce * currentNonce - previousNonce * previousNonce).getBytes()));
+
+                if (!hashOps.startsWith("0000")) {
+                    return false;
+                }
+
+                return true;
+
+
+        }catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    /**
+     * Posts recent mined block to external nodes
+     * @param ipAddress ip address of external node
+     * @param blockToPost block to post
+     * @return true if block posted successfully false otherwise
+     */
+    public boolean postBlock(String ipAddress, BlockEntity blockToPost){
+        RestTemplate restTemplate = new RestTemplate();
+
+        try{
+            var response = restTemplate.postForObject(ipAddress +"/block_chain/block", blockToPost, String.class);
+            if(response != null){
+                return response.equals("Request Accepted!");
+            }
+            return false;
+        }catch (Exception e){
+            return false;
+        }
+
+    }
+
+
  }

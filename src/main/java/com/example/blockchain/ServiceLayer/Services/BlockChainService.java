@@ -15,10 +15,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +24,6 @@ public class BlockChainService {
     private final TransactionRepository transactionRepository;
 
     private final BlockChainModel blockChainModel;
-
 
 
     @Autowired
@@ -39,41 +35,37 @@ public class BlockChainService {
     }
 
 
-
-
-
     @PostConstruct
     public void init() {
         //first register to node recording System
 
         RestTemplate registeringTemplate = new RestTemplate();
-        HttpHeaders  headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
         UUID uuid = blockChainModel.getUuid();
-        String ipAdress = "http://localhost:8000";
+        String ipAdress = "http://localhost:8080";
         NodeRecord nodeRecord = new NodeRecord(uuid, ipAdress, true);
 
-        try{
-            registeringTemplate.postForObject("http://localhost:8081/node-service/register-nodes" ,nodeRecord , NodeRecord.class);
+        try {
+            registeringTemplate.postForObject("http://localhost:8081/node-service/register-nodes", nodeRecord, NodeRecord.class);
 
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange(
-                "http://localhost:8081/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {}
-        );
+        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange("http://localhost:8081/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
+        });
 
         var element = response.getBody();
-        var activeNodes = element.stream().filter(s -> s.isActive() == true).collect(Collectors.toList());
+        assert element != null;
+        var activeNodes = element.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
 
 
-        if(activeNodes.size() == 1){
+        if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
             // if this node is the only node that is active
             blockRepository.persistBlock(new BlockEntity(1, new Date().toString(), 0, "000", new TransactionEntity()));
 
-        }else{
+        } else {
+            System.out.println(activeNodes);
             replicateChain(activeNodes);
         }
 
@@ -82,28 +74,26 @@ public class BlockChainService {
 
 
     @PreDestroy
-    public void finilize(){
+    public void finilize() {
         //first register to node recording System
 
         RestTemplate registeringTemplate = new RestTemplate();
-        HttpHeaders  headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         UUID uuid = blockChainModel.getUuid();
         String ipAdress = "http://localhost:8000";
         NodeRecord nodeRecord = new NodeRecord(uuid, ipAdress, false);
 
-        try{
-            registeringTemplate.postForObject("http://localhost:8081/node-service/register-nodes" ,nodeRecord , NodeRecord.class);
+        try {
+            registeringTemplate.postForObject("http://localhost:8081/node-service/register-nodes", nodeRecord, NodeRecord.class);
 
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
 
-
-
-    public List<BlockEntity> retrieveAllBlock(){
+    public List<BlockEntity> retrieveAllBlock() {
         return blockRepository.getBlockAllBlock();
     }
 
@@ -115,48 +105,67 @@ public class BlockChainService {
         int newNonce = BlockChainModel.findNonce(lastBlockNonce);
         int newIndex = blockRepository.getLastIndex() + 1;
 
-        BlockEntity blockEntity = new BlockEntity(newIndex ,newNonce,lastBlock.getCurrentBlockHash());
+        BlockEntity blockEntity = new BlockEntity(newIndex, newNonce, lastBlock.getCurrentBlockHash());
         blockChainModel.setTransactionEntities(new ArrayList<TransactionEntity>());
         blockEntity.setCurrentBlockHash(blockEntity.calculateHash());
 
-        blockRepository.persistBlock(blockEntity);
+
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange("http://localhost:8081/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
+        });
+        var element = response.getBody();
+        assert element != null;
+        var activeNodes = element
+                .stream()
+                .filter(NodeRecord::isActive)
+                .filter(nodeRecord -> !nodeRecord.getIpAdress().equals("http://localhost:8080"))
+                .toList();
+
+
+        if(blockChainModel.isValid(lastBlock,blockEntity)){
+            blockRepository.persistBlock(blockEntity);
+            activeNodes.forEach(nodeRecord -> {
+                blockChainModel.postBlock(nodeRecord.getIpAdress(),blockEntity);
+            });
+        }
 
 
         return blockEntity;
     }
 
-    private void replicateChain(List<NodeRecord> nodeRecords){
+    public BlockEntity retrieveBlockByIndex(int index){
+        var block = blockRepository.getBlockByIndex(index);
+        return block;
+
+    }
+
+    private void replicateChain(List<NodeRecord> nodeRecords) {
         //if there is more block than our blocks in the chain set that node as a major node
 
         // compare all nodes and determine the longest chain
-        NodeRecord nodeRecord = nodeRecords.stream()
-                .max((s1,s2) -> {
-                    RestTemplate restTemplate1 = new RestTemplate();
-                    String urlS1 = s1.getIpAdress() + "/block-chain/get_chain";
-                    String urlS2 = s2.getIpAdress() + "/block-chain/get_chain";
 
-                    ResponseEntity<List<BlockEntity>> response1 = restTemplate1.exchange(
-                            urlS1, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {}
-                    );
+        NodeRecord majorNode = null;
+        int selfLength = blockRepository.getBlockAllBlock().size();
+        for(NodeRecord nodeRecord: nodeRecords){
+            RestTemplate restTemplate1 = new RestTemplate();
+            if(nodeRecord.getIpAdress().equals("http://localhost:8080")){
+                continue;
+            }
+            String urlS1 = nodeRecord.getIpAdress() + "/block_chain/block";
+            ResponseEntity<List<BlockEntity>> response1 = restTemplate1.exchange(urlS1, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {
+            });
 
-                    ResponseEntity<List<BlockEntity>> response2 = restTemplate1.exchange(
-                            urlS2, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {}
-                    );
+            if(Objects.requireNonNull(response1.getBody()).size() > selfLength){
+                majorNode = nodeRecord;
+                selfLength = response1.getBody().size();
+            }
+        }
 
-                    var element1 = response1.getBody();
-                    var element2 = response2.getBody();
 
-                    if(element1.size() > element2.size()){
-                        return 1;
-                    }else if(element1.size() < element2.size()){
-                        return -1;
-                    }else {
-                        return 0;
-                    }
-                })
-                .get();
 
-        if(nodeRecord.getUuid().equals(this.blockChainModel.getUuid())){
+
+        if ( majorNode == null) {
             return;
         }
 
@@ -164,16 +173,41 @@ public class BlockChainService {
         blockRepository.deleteAllBlocks();
 
         // copy blockchain to own application
-        String url = nodeRecord.getIpAdress() +  "/blockchain/get_chain";
+        String url = majorNode.getIpAdress() + "/block_chain/block";
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<BlockEntity>> response = restTemplate.exchange(
-                url, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {}
-        );
+        ResponseEntity<List<BlockEntity>> response = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {
+        });
         List<BlockEntity> blockEntities = response.getBody();
         assert blockEntities != null;
-        blockEntities.stream()
-                .map(s -> blockRepository.persistBlock(s));
+        blockEntities.forEach(blockRepository::persistBlock);
 
+    }
+
+    public boolean validateAllBlock(){
+        List<BlockEntity> allBlocks = blockRepository.getBlockAllBlock();
+
+        for(int i = 0; i < allBlocks.size() -1; i++){
+            var previousBlock = allBlocks.get(i);
+            var currentBlock = allBlocks.get(i + 1);
+            if(!blockChainModel.isValid(previousBlock,currentBlock)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Gets block entity from external nodes and adds itself chain if block is valid
+     * @param recentBlock a recently posted block entity to add to blockChain
+     * @return true : if block is  valid , false if block is invalid
+     */
+    public boolean acceptExternalBlock(BlockEntity recentBlock){
+        var lastNode = blockRepository.getBlockLastBlock();
+
+        if(blockChainModel.isValid(lastNode, recentBlock)){
+            return blockRepository.persistBlock(recentBlock);
+        }
+        return false;
     }
 
 }

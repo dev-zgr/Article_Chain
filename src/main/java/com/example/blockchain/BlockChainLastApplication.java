@@ -2,6 +2,7 @@ package com.example.blockchain;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
+import com.example.blockchain.ServiceLayer.Services.BlockChainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,9 @@ public class BlockChainLastApplication implements CommandLineRunner{
 
     @Autowired
     BlockRepository blockRepository;
+
+    @Autowired
+    BlockChainService service;
 
 
 
@@ -25,7 +29,6 @@ public class BlockChainLastApplication implements CommandLineRunner{
 
     public void run(String... args) throws Exception{
         System.out.println("hello");
-
-
+        System.out.println( "ALL BLOCKS ARE " +        service.validateAllBlock());
     }
 }
