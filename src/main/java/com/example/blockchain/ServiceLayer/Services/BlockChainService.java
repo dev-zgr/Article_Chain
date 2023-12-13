@@ -51,13 +51,9 @@ public class BlockChainService {
         nodeAdressingSystem.postNodeRecord("/node-service/register-nodes",nodeRecord);
 
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange("http://localhost:8081/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
-        });
-
-        var element = response.getBody();
-        assert element != null;
-        var activeNodes = element.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
+        List<NodeRecord> allNodes= nodeAdressingSystem.getAllNodes("/node-service/get-nodes");
+        assert allNodes != null;
+        List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
 
 
         if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
@@ -65,11 +61,8 @@ public class BlockChainService {
             blockRepository.persistBlock(new BlockEntity(1, new Date().toString(), 0, "000", new TransactionEntity()));
 
         } else {
-            System.out.println(activeNodes);
             replicateChain(activeNodes);
         }
-
-
     }
 
 
@@ -84,12 +77,8 @@ public class BlockChainService {
         UUID uuid = blockChainModel.getUuid();
         String ipAdress = "http://localhost:8000";
         NodeRecord nodeRecord = new NodeRecord(uuid, ipAdress, false);
+        nodeAdressingSystem.postNodeRecord("/node-service/register-nodes",nodeRecord);
 
-        try {
-            registeringTemplate.postForObject("http://localhost:8081/node-service/register-nodes", nodeRecord, NodeRecord.class);
-
-        } catch (Exception e) {
-        }
     }
 
 
