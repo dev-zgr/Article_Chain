@@ -1,0 +1,44 @@
+package com.example.blockchain.ServiceLayer.Configurations;
+
+import com.example.blockchain.DataLayer.Entities.NodeRecord;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+@Data
+@Component
+public class NodeAdressingSystem {
+
+    @Value("${node.addressingSystem.ip:localhost}")
+    private String nodeAddress;
+
+    @Value("${node.addressingSystem.port:8080}")
+    private String nodePort;
+
+    public NodeAdressingSystem(String nodeAddress, String nodePort) {
+        this.nodeAddress = nodeAddress;
+        this.nodePort = nodePort;
+    }
+
+    public NodeAdressingSystem() {
+    }
+
+    public String getAdress(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("http://");
+        stringBuilder.append(nodeAddress);
+        stringBuilder.append(":");
+        stringBuilder.append(nodePort);
+        return stringBuilder.toString();
+    }
+
+    public void postNodeRecord(String directory , NodeRecord nodeRecord){
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.postForObject( getAdress() + directory, nodeRecord, NodeRecord.class);
+
+        } catch (Exception e) {
+        }
+    }
+}

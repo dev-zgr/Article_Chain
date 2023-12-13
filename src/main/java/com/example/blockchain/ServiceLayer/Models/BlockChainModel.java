@@ -6,14 +6,9 @@ import lombok.Data;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.Cipher;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,9 +60,7 @@ public class BlockChainModel {
     }
 
     public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock){
-
         try{
-
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
                 if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
@@ -91,8 +84,6 @@ public class BlockChainModel {
             e.printStackTrace();
         }
         return true;
-
-
     }
 
     /**
@@ -101,7 +92,7 @@ public class BlockChainModel {
      * @param blockToPost block to post
      * @return true if block posted successfully false otherwise
      */
-    public boolean postBlock(String ipAddress, BlockEnvelope blockToPost){
+    public boolean postBlock(String ipAddress, BlockEntity blockToPost){
         RestTemplate restTemplate = new RestTemplate();
 
         try{
@@ -116,27 +107,5 @@ public class BlockChainModel {
 
     }
 
-    public boolean isSignatureValid(BlockEntity blockEntity, PublicKey publicKey){
 
-
-        try{
-            Cipher decrypter =  Cipher.getInstance("RSA");
-            decrypter.init(Cipher.DECRYPT_MODE, publicKey);
-
-            byte[] encodedSignature = Base64.getDecoder().decode(blockEntity.getSignature());
-            byte[] decryptedMessageBytes = decrypter.doFinal(encodedSignature);
-            String decryptedMessage = new String(decryptedMessageBytes, StandardCharsets.UTF_8);
-
-            return decryptedMessage.equals(blockEntity.getCurrentBlockHash());
-
-        }catch (Exception e){
-            return false;
-        }
-
-
-
-    }
-
-
-
-    }
+ }
