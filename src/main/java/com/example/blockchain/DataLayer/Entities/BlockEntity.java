@@ -1,5 +1,6 @@
 package com.example.blockchain.DataLayer.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -34,6 +35,7 @@ public class BlockEntity {
     private String merkleRoot;
 
     @OneToMany(fetch = FetchType.EAGER)
+    @JsonManagedReference
     @JoinColumn(name = "block_id")
     List<TransactionEntity> transactionList;
 

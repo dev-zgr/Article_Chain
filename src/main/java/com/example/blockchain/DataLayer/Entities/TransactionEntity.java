@@ -26,6 +26,9 @@ public class TransactionEntity {
     @Column(name = "article")
     private String article;
 
+    @ManyToOne
+    BlockEntity mainBlock;
+
     public TransactionEntity(String author, String date, String article) {
         this.author = author;
         this.date = date;

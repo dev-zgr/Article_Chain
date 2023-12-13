@@ -44,7 +44,7 @@ public class BlockRepositoryImpl implements BlockRepository {
 
     @Override
     public List<BlockEntity> getBlockAllBlock() {
-        Query query = entityManagerFactory.createQuery("SELECT e FROM BlockEntity e");
+        Query query = entityManagerFactory.createQuery("SELECT e FROM BlockEntity e", BlockEntity.class);
         return query.getResultList();
     }
 

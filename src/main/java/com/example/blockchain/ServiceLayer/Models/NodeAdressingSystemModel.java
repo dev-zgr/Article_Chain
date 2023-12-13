@@ -1,4 +1,4 @@
-package com.example.blockchain.ServiceLayer.Configurations;
+package com.example.blockchain.ServiceLayer.Models;
 
 import com.example.blockchain.DataLayer.Entities.NodeRecord;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Component
-public class NodeAdressingSystem {
+public class NodeAdressingSystemModel {
 
     @Value("${node.addressingSystem.ip:localhost}")
     private String nodeAddress;
@@ -21,12 +21,14 @@ public class NodeAdressingSystem {
     @Value("${node.addressingSystem.port:8080}")
     private String nodePort;
 
-    public NodeAdressingSystem(String nodeAddress, String nodePort) {
+    public NodeAdressingSystemModel(String nodeAddress, String nodePort) {
         this.nodeAddress = nodeAddress;
         this.nodePort = nodePort;
     }
 
-    public NodeAdressingSystem() {
+    public NodeAdressingSystemModel() {
+        nodeAddress = "localhost";
+        nodePort = "8080";
     }
 
     public String getAdress() {
