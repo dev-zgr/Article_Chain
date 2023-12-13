@@ -33,6 +33,12 @@ public class BlockEntity {
     @Column(name = "merkle_root")
     private String merkleRoot;
 
+
+    @Column(name = "signature", length = 2048)
+    @Lob
+    private String signature;
+
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "block_id")
     List<TransactionEntity> transactionList;
@@ -54,6 +60,8 @@ public class BlockEntity {
         this.timestamp = new Date().toString();
         this.merkleRoot = calculateMerkleRoot();
         this.currentBlockHash = this.calculateHash();
+        this.signature = signature;
+
     }
 
     public BlockEntity() {
@@ -70,6 +78,7 @@ public class BlockEntity {
         this.timestamp = new Date().toString();
         this.currentBlockHash = calculateHash();
         this.merkleRoot = calculateMerkleRoot();
+        this.signature = signature;
     }
 
 

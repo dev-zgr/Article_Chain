@@ -1,9 +1,6 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.UUID;
@@ -18,16 +15,22 @@ public class NodeRecord {
 
     boolean isActive;
 
-    public NodeRecord(UUID uuid, String ipAdress , boolean isActive){
+    @Lob
+    @Column(name="public_key", columnDefinition="bytea")
+    private byte[] publicKey;
+
+    public NodeRecord(UUID uuid, String ipAdress , boolean isActive , byte[] publicKey){
         this.ipAdress = ipAdress;
         this.uuid = uuid;
         this.isActive = isActive;
+        this.publicKey = publicKey;
     }
 
     public NodeRecord(){
         this.uuid = null;
         this.ipAdress =null;
         this.isActive = false;
+        publicKey = new byte[2048];
     }
 }
 
