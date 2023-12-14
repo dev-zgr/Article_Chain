@@ -3,45 +3,50 @@ package com.example.blockchain.DataLayer.Entities;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="tx_type", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "transaction")
 public class TransactionEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "tx_id")
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    private int id;
+    private long tx_id;
 
-    @Column(name = "author")
-    private String author;
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
 
-
-    @Column(name = "date")
-    private String date;
-
-    @Column(name = "article")
-    private String article;
+    @Column(name = "p_hash")
+    private String p_hash;
 
     @ManyToOne
     BlockEntity mainBlock;
 
-    public TransactionEntity(String author, String date, String article) {
-        this.author = author;
-        this.date = date;
-        this.article = article;
+    public TransactionEntity(String p_hash) {
+        this.p_hash = p_hash;
+        LocalDateTime now = LocalDateTime.now();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        this.timestamp = LocalDateTime.parse(now.format(formatter));
     }
 
     public TransactionEntity() {
-        this.id = 0;
-        this.article = this.author = this.date =null;
+        this.tx_id = 0;
+        this.timestamp = null;
+        this.p_hash = null;
     }
 
     public String calculateTransactionHash() {
-        String transactionData = author + date + article;
+        String transactionData = String.valueOf(tx_id) + timestamp;
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

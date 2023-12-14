@@ -17,10 +17,6 @@ public class BlockChainLastApplication implements CommandLineRunner{
     @Autowired
     BlockChainService service;
 
-
-
-
-
     public static void main(String[] args) {
         SpringApplication.run(BlockChainLastApplication.class, args);
 
@@ -29,6 +25,6 @@ public class BlockChainLastApplication implements CommandLineRunner{
 
     public void run(String... args) throws Exception{
         System.out.println("hello");
-        System.out.println( "ALL BLOCKS ARE " +        service.validateAllBlock());
+        System.out.println( "ALL BLOCKS ARE " + service.validateAllBlock());
     }
 }

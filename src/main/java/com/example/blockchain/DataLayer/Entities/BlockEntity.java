@@ -64,17 +64,6 @@ public class BlockEntity {
         transactionList = new ArrayList<>();
     }
 
-    public BlockEntity(int index, int nonce, String previousHash, ArrayList<TransactionEntity> transaction) {
-        this.indexNo = index;
-        this.nonce = nonce;
-        this.previousBlockHash = previousHash;
-        this.transactionList = transaction;
-        this.timestamp = new Date().toString();
-        this.currentBlockHash = calculateHash();
-        this.merkleRoot = calculateMerkleRoot();
-    }
-
-
     public String calculateHash(){
         String input = indexNo + timestamp + nonce + previousBlockHash + transactionList.toString();
         try {
