@@ -34,6 +34,9 @@ public class submitEntity extends TransactionEntity {
     @Column(name = "article_date")
     private String article_date;
 
+    @Column(name = "department");
+    private String department;
+
     public submitEntity(String article_name, String article_type, String article_category, String author_name, String author_email, String author_phone, String institution, String date){
         this.article_name = article_name;
         this.article_type = article_type;
