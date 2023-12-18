@@ -39,33 +39,47 @@ public class BlockEntity {
     @JoinColumn(name = "block_id")
     List<TransactionEntity> transactionList;
 
-    public BlockEntity(int index, int nonce, String previousHash){
+    public BlockEntity(int index, String previousHash){
         this.indexNo = index;
-        this.nonce = nonce;
+        this.nonce = 0;
         this.previousBlockHash = previousHash;
         this.transactionList = new ArrayList<>();
         this.timestamp = new Date().toString();
         this.merkleRoot = calculateMerkleRoot();
     }
 
-    public BlockEntity(int index, String timeStamp, int nonce, String previousHash, TransactionEntity transaction) {
+    public BlockEntity(int index, String timeStamp, String previousHash, TransactionEntity transaction) {
         this.indexNo = index;
-        this.nonce = nonce;
+        this.nonce = 0;
         this.previousBlockHash = previousHash;
         this.transactionList = List.of(transaction);
-        this.timestamp = new Date().toString();
+        this.timestamp = timeStamp;
         this.merkleRoot = calculateMerkleRoot();
-        this.currentBlockHash = this.calculateHash();
+        this.currentBlockHash = this.ProofOfWork();
     }
 
     public BlockEntity() {
         nonce = 0;
-        previousBlockHash  = timestamp =merkleRoot = null;
+        previousBlockHash  = timestamp = merkleRoot = null;
         transactionList = new ArrayList<>();
     }
 
-    public String calculateHash(){
-        String input = indexNo + timestamp + nonce + previousBlockHash + transactionList.toString();
+    public String ProofOfWork() {
+        String target = generateTarget();
+
+        String input;
+        String hash;
+
+        do {
+            nonce++;
+            input = indexNo + timestamp + nonce + previousBlockHash + transactionList.toString();
+            hash = calculateHash(input);
+        } while (!hash.startsWith(target));
+
+        return hash;
+    }
+
+    public String calculateHash(String input){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes());
@@ -89,7 +103,8 @@ public class BlockEntity {
         List<String> transactionHashes = new ArrayList<>();
 
         if(transactionHashes.size() == 0){
-            return "000000000000";
+            String default_mroot= "000000000000";
+            return default_mroot;
         }else{
             for (TransactionEntity transaction : transactionList) {
                 transactionHashes.add(transaction.calculateTransactionHash());
@@ -125,10 +140,18 @@ public class BlockEntity {
                 transactionHashes = newHashes;
             }
 
-
             return transactionHashes.get(0);
         }
 
+    }
 
+    public static String generateTarget() {
+        int difficulty = 4;
+
+        StringBuilder targetBuilder = new StringBuilder();
+        for (int i = 0; i < difficulty; i++) {
+            targetBuilder.append('0');
+        }
+        return targetBuilder.toString();
     }
 }

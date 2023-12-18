@@ -54,7 +54,7 @@ public class BlockChainService {
 
 
         if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
-            blockRepository.persistBlock(new BlockEntity(1, new Date().toString(), 0, "000", new TransactionEntity()));
+            blockRepository.persistBlock(new BlockEntity(1, new Date().toString(), "000", new TransactionEntity()));
 
         } else {
             replicateChain(activeNodes);
@@ -65,7 +65,7 @@ public class BlockChainService {
     @PreDestroy
     public void finilize() {
         //first register to node recording System
-        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAdress(), true);
+        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAdress(), false);
         nodeAdressingSystemModel.postNodeRecord("/node-service/register-nodes", nodeRecord);
 
     }
@@ -78,14 +78,12 @@ public class BlockChainService {
     public BlockEntity mineBlock() {
 
         var lastBlock = blockRepository.getBlockLastBlock();
-        int lastBlockNonce = lastBlock.getNonce();
 
-        int newNonce = BlockChainModel.findNonce(lastBlockNonce);
         int newIndex = blockRepository.getLastIndex() + 1;
 
-        BlockEntity blockEntity = new BlockEntity(newIndex, newNonce, lastBlock.getCurrentBlockHash());
+        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash());
         blockChainModel.setTransactionEntities(new ArrayList<TransactionEntity>());
-        blockEntity.setCurrentBlockHash(blockEntity.calculateHash());
+        blockEntity.setCurrentBlockHash(blockEntity.ProofOfWork());
 
 
         List<NodeRecord> allNodes = nodeAdressingSystemModel.getAllNodes("/node-service/get-nodes");

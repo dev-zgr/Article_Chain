@@ -24,14 +24,19 @@ public class TransactionEntity {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    @Column(name = "p_hash")
-    private String p_hash;
+    @Column(name = "paper_hash")
+    private String paper_hash;
+
+    @Column(name = "abstract_hash")
+    private String abstract_hash;
 
     @ManyToOne
     BlockEntity mainBlock;
 
-    public TransactionEntity(String p_hash) {
-        this.p_hash = p_hash;
+    public TransactionEntity(String paper_hash, String abstract_hash) {
+        this.paper_hash = paper_hash;
+        this.abstract_hash = abstract_hash;
+
         LocalDateTime now = LocalDateTime.now();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -42,11 +47,11 @@ public class TransactionEntity {
     public TransactionEntity() {
         this.tx_id = 0;
         this.timestamp = null;
-        this.p_hash = null;
+        this.paper_hash = this.abstract_hash = null;
     }
 
     public String calculateTransactionHash() {
-        String transactionData = String.valueOf(tx_id) + timestamp;
+        String transactionData = String.valueOf(tx_id) + timestamp + paper_hash + abstract_hash;
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

@@ -23,30 +23,6 @@ public class BlockChainModel {
         transactionEntities = new ArrayList<>();
     }
 
-
-    public static int  findNonce(int previousNonce) {
-        int newNonce = 1;
-        boolean checkNonce = false;
-
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-            while (!checkNonce) {
-                String hashOps = bytesToHex(md.digest(String.valueOf(newNonce * newNonce - previousNonce * previousNonce).getBytes()));
-
-                if (hashOps.startsWith("0000")) {
-                    checkNonce = true;
-                } else {
-                    newNonce++;
-                }
-            }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
-        return newNonce;
-    }
-
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (byte h : hash) {
@@ -61,6 +37,7 @@ public class BlockChainModel {
 
     public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock){
         try{
+            String target = BlockEntity.generateTarget();
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
                 if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
@@ -68,12 +45,9 @@ public class BlockChainModel {
                     return false;
                 }
 
-                var previousNonce = previousBlock.getNonce();
-                var currentNonce = currentBlock.getNonce();
+                var current_block_hash = currentBlock.getCurrentBlockHash();
 
-                String hashOps = bytesToHex(md.digest(String.valueOf(currentNonce * currentNonce - previousNonce * previousNonce).getBytes()));
-
-                if (!hashOps.startsWith("0000")) {
+                if (!current_block_hash.startsWith(target)) {
                     return false;
                 }
 
