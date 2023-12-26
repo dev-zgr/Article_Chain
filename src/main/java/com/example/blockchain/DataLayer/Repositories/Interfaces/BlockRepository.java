@@ -29,4 +29,6 @@ public interface BlockRepository {
 
 
     void deleteAllBlocks();
-}
+    public boolean updateBlock(BlockEntity blockEntity) ;
+
+    }

@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,7 +23,7 @@ public class TransactionEntity {
     private long tx_id;
 
     @Column(name = "timestamp")
-    private LocalDateTime timestamp;
+    private String timestamp;
 
     @Column(name = "paper_hash")
     private String paper_hash;
@@ -31,6 +32,7 @@ public class TransactionEntity {
     private String abstract_hash;
 
     @ManyToOne
+    @JsonBackReference
     BlockEntity mainBlock;
 
     public TransactionEntity(String paper_hash, String abstract_hash) {
@@ -38,17 +40,19 @@ public class TransactionEntity {
         this.abstract_hash = abstract_hash;
 
         LocalDateTime now = LocalDateTime.now();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        this.timestamp = LocalDateTime.parse(now.format(formatter));
+        this.timestamp = now.format(formatter);
     }
 
     public TransactionEntity() {
-        this.tx_id = 0;
         this.timestamp = null;
         this.paper_hash = this.abstract_hash = null;
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.timestamp = now.format(formatter);
     }
+
 
     public String calculateTransactionHash() {
         String transactionData = String.valueOf(tx_id) + timestamp + paper_hash + abstract_hash;

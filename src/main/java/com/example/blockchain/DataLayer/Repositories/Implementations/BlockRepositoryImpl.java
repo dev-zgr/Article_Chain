@@ -98,4 +98,18 @@ public class BlockRepositoryImpl implements BlockRepository {
         Query query = entityManagerFactory.createQuery("DELETE FROM BlockEntity ");
 
     }
+
+    @Override
+    public boolean updateBlock(BlockEntity blockEntity) {
+        try{
+            BlockEntity block = entityManagerFactory.find(BlockEntity.class, blockEntity.getIndexNo());
+            block.setCurrentBlockHash(blockEntity.getCurrentBlockHash());
+            block.setPreviousBlockHash(blockEntity.getPreviousBlockHash());
+            block.setTransactionList(blockEntity.getTransactionList());
+            entityManagerFactory.merge(block);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
 }

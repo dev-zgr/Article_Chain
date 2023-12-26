@@ -3,6 +3,7 @@ package com.example.blockchain.ServiceLayer.Models;
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,9 +19,18 @@ public class BlockChainModel {
     private UUID uuid;
     private List<TransactionEntity> transactionEntities;
 
+    @Value("${blockchain.maxTransactionsPerBlock:10}")
+    private int maxTransactionsPerBlock;
+
     public BlockChainModel(){
         uuid = new UUID(0,0);
         transactionEntities = new ArrayList<>();
+    }
+
+    public BlockChainModel(UUID uuid, List<TransactionEntity> transactionEntities, int maxTransactionsPerBlock) {
+        this.uuid = uuid;
+        this.transactionEntities = transactionEntities;
+        this.maxTransactionsPerBlock = maxTransactionsPerBlock;
     }
 
     public static String bytesToHex(byte[] hash) {

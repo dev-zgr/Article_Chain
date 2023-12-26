@@ -33,6 +33,6 @@ public class NodeModel {
 
 
     public String getFinalIpAdress(){
-        return "http://"+nodeAddress+":"+nodePort;
+        return "https://"+nodeAddress;
     }
 }

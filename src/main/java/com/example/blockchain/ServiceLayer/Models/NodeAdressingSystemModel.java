@@ -51,7 +51,7 @@ public class NodeAdressingSystemModel {
 
     public List<NodeRecord> getAllNodes(String directory) {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange("http://localhost:8081/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
+        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange(  getAdress()+"/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
         });
         return response.getBody();
     }
