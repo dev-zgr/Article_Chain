@@ -1,7 +1,7 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -11,14 +11,22 @@ public class SubmitEntity extends TransactionEntity {
 
     ArticleEmbeddable article;
 
-    public SubmitEntity(String paperHash, String abstractHash, ArticleEmbeddable article) {
-        super(paperHash, abstractHash);
+    @Column(name = "submission_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long submisionId;
+
+    @Column(name = "paper_hash")
+    private String paper_hash;
+
+    public SubmitEntity(String paperHash, ArticleEmbeddable article) {
+        this.paper_hash = paperHash;
         this.article = article;
     }
 
     public SubmitEntity() {
         super();
         this.article = new ArticleEmbeddable();
+        this.paper_hash = "";
     }
 
 }

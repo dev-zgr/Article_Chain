@@ -48,12 +48,12 @@ public class BlockEntity {
         this.merkleRoot = calculateMerkleRoot();
     }
 
-    public BlockEntity(int index, String timeStamp, String previousHash, TransactionEntity transaction) {
+    public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions) {
         this.indexNo = index;
         this.nonce = 0;
         this.previousBlockHash = previousHash;
-        this.transactionList = List.of(transaction);
-        this.timestamp = timeStamp;
+        this.transactionList = transactions;
+        this.timestamp = new Date().toString();;
         this.merkleRoot = calculateMerkleRoot();
         this.currentBlockHash = this.ProofOfWork();
     }
@@ -103,8 +103,7 @@ public class BlockEntity {
         List<String> transactionHashes = new ArrayList<>();
 
         if(transactionHashes.size() == 0){
-            String default_mroot= "000000000000";
-            return default_mroot;
+            return "000000000000";
         }else{
             for (TransactionEntity transaction : transactionList) {
                 transactionHashes.add(transaction.calculateTransactionHash());

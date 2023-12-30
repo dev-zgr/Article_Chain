@@ -1,8 +1,7 @@
 package com.example.blockchain;
 
-import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
-import com.example.blockchain.ServiceLayer.Services.BlockChainService;
+import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

@@ -1,9 +1,8 @@
-package com.example.blockchain.PresentationLayer;
+package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
-import com.example.blockchain.ServiceLayer.Services.BlockChainService;
+import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Block;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

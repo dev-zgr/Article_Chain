@@ -1,4 +1,4 @@
-package com.example.blockchain.ServiceLayer.Services;
+package com.example.blockchain.ServiceLayer.Services.Implementations;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Entities.NodeRecord;
@@ -8,6 +8,7 @@ import com.example.blockchain.DataLayer.Repositories.Interfaces.TransactionRepos
 import com.example.blockchain.ServiceLayer.Models.NodeAdressingSystemModel;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.NodeModel;
+import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,16 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.management.NotificationEmitter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class BlockChainService {
     private final BlockRepository blockRepository;
-    private final TransactionRepository transactionRepository;
+    private final TransactionHolder transactionHolder;
 
     private final BlockChainModel blockChainModel;
+    private final TransactionRepository transactionRepository;
 
     private final NodeAdressingSystemModel nodeAdressingSystemModel;
 
@@ -33,10 +34,11 @@ public class BlockChainService {
 
 
     @Autowired
-    public BlockChainService(BlockRepository blockRepository, TransactionRepository transactionRepository, BlockChainModel blockChainModel, NodeAdressingSystemModel nodeAdressingSystemModel, NodeModel nodeModel) {
+    public BlockChainService(BlockRepository blockRepository, TransactionHolder transactionHolder, BlockChainModel blockChainModel, TransactionRepository transactionRepository, NodeAdressingSystemModel nodeAdressingSystemModel, NodeModel nodeModel) {
         this.blockRepository = blockRepository;
-        this.transactionRepository = transactionRepository;
+        this.transactionHolder = transactionHolder;
         this.blockChainModel = blockChainModel;
+        this.transactionRepository = transactionRepository;
         this.nodeAdressingSystemModel = nodeAdressingSystemModel;
         this.nodeModel = nodeModel;
 
@@ -54,7 +56,7 @@ public class BlockChainService {
 
 
         if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
-            blockRepository.persistBlock(new BlockEntity(1, new Date().toString(), "000", new TransactionEntity()));
+            blockRepository.persistBlock(new BlockEntity(1,  "000", new LinkedList<TransactionEntity>()));
 
         } else {
             replicateChain(activeNodes);
@@ -78,26 +80,42 @@ public class BlockChainService {
     public BlockEntity mineBlock() {
 
         var lastBlock = blockRepository.getBlockLastBlock();
-
-        int newIndex = blockRepository.getLastIndex() + 1;
-
-        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash());
-        blockChainModel.setTransactionEntities(new ArrayList<TransactionEntity>());
-        blockEntity.setCurrentBlockHash(blockEntity.ProofOfWork());
+        BlockEntity blockEntity = getBlockEntity(lastBlock);
 
 
         List<NodeRecord> allNodes = nodeAdressingSystemModel.getAllNodes("/node-service/get-nodes");
         assert allNodes != null;
-        List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
+        List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).toList();
 
         if (blockChainModel.isValid(lastBlock, blockEntity)) {
+            List<TransactionEntity>  transactionList= blockEntity.getTransactionList();
+            transactionRepository.saveAll(transactionList);
             blockRepository.persistBlock(blockEntity);
+
+
             activeNodes.forEach(nodeRecord -> {
                 blockChainModel.postBlock(nodeRecord.getIpAdress(), blockEntity);
             });
         }
 
 
+        return blockEntity;
+    }
+
+    private BlockEntity getBlockEntity(BlockEntity lastBlock) {
+        int newIndex = blockRepository.getLastIndex() + 1;
+
+        List<TransactionEntity> pendingTransactions;
+        try{
+            pendingTransactions = transactionHolder.getPendingTransactions();
+                pendingTransactions.forEach(transactionEntity -> {
+                transactionEntity.setMainBlock(lastBlock);
+            });
+        }catch (Exception e){
+            pendingTransactions = new ArrayList<>();
+        }
+        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash(), pendingTransactions);
+        blockEntity.setCurrentBlockHash(blockEntity.ProofOfWork());
         return blockEntity;
     }
 

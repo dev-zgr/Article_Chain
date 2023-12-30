@@ -7,55 +7,47 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SubmitEntity.class, name = "submitEntity"),
+})
 @Entity
 @Data
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="tx_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "tx_type", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "transaction")
 public class TransactionEntity {
 
     @Id
     @Column(name = "tx_id")
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long tx_id;
 
     @Column(name = "timestamp")
     private String timestamp;
 
-    @Column(name = "paper_hash")
-    private String paper_hash;
-
-    @Column(name = "abstract_hash")
-    private String abstract_hash;
-
     @ManyToOne
     @JsonBackReference
     BlockEntity mainBlock;
 
-    public TransactionEntity(String paper_hash, String abstract_hash) {
-        this.paper_hash = paper_hash;
-        this.abstract_hash = abstract_hash;
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        this.timestamp = now.format(formatter);
-    }
-
     public TransactionEntity() {
-        this.timestamp = null;
-        this.paper_hash = this.abstract_hash = null;
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.timestamp = now.format(formatter);
     }
+
+
 
 
     public String calculateTransactionHash() {
-        String transactionData = String.valueOf(tx_id) + timestamp + paper_hash + abstract_hash;
+        String transactionData = String.valueOf(tx_id) + timestamp;
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
