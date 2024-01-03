@@ -130,5 +130,10 @@ public class ArticleServiceImpl implements ArticleService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SubmitEntity> getReviewedArticles() {
+        return null;
+    }
+
 
 }
