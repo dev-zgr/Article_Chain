@@ -5,6 +5,7 @@ import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.SubmissionRepository;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
@@ -89,9 +90,20 @@ public class ArticleServiceImpl implements ArticleService {
                             finalDecision.reviewRequestEntityDTO.reviewerEmail,
                             finalDecision.reviewRequestEntityDTO.referringSubmissionId),
                     finalDecision.decision_file_hash,
-                    finalDecision.decisionPoint
+                    finalDecision.decisionPoint, DecisionStatus.FirstReview
             );
+            finalDecisionEntity.setReview_hash(BlockEntity.calculateHash(finalDecisionEntity.toString()));
         return transactionHolder.addPendingTransaction(finalDecisionEntity);
     }
+
+    @Override
+    public boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException {
+        ReviewResponseEntity reviewResponseEntity = new ReviewResponseEntity(
+                reviewRequestEntity.reviewResponseLetterHash,
+                reviewRequestEntity.referringSubmissionId
+        );
+        return transactionHolder.addPendingTransaction(reviewResponseEntity);
+    }
+
 
 }

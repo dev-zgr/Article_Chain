@@ -8,9 +8,15 @@ import lombok.Data;
 
 import java.util.UUID;
 
+/**
+ * dsasdadasdas
+ */
 @Data
 public class NodeRecord {
 
+    /**
+     *
+     */
     private UUID uuid;
 
 
@@ -18,6 +24,12 @@ public class NodeRecord {
 
     boolean isActive;
 
+    /**
+     *
+     * @param uuid
+     * @param ipAdress
+     * @param isActive
+     */
     public NodeRecord(UUID uuid, String ipAdress , boolean isActive){
         this.ipAdress = ipAdress;
         this.uuid = uuid;

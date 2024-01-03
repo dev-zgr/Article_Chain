@@ -1,29 +1,16 @@
 package com.example.blockchain;
 
-import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
-import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * This class is responsible for running the Main Spring application.
+ */
 @SpringBootApplication
-public class BlockChainLastApplication implements CommandLineRunner{
-
-    @Autowired
-    BlockRepository blockRepository;
-
-    @Autowired
-    BlockChainService service;
+public class BlockChainLastApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(BlockChainLastApplication.class, args);
-
-
     }
 
-    public void run(String... args) throws Exception{
-        System.out.println("hello");
-        System.out.println( "ALL BLOCKS ARE " + service.validateAllBlock());
-    }
 }

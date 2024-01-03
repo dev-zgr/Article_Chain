@@ -79,7 +79,7 @@ public class BlockEntity {
         return hash;
     }
 
-    public String calculateHash(String input){
+    public static String calculateHash(String input){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes());

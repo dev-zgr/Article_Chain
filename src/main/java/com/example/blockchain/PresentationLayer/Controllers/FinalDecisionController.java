@@ -1,7 +1,6 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,18 +9,39 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * This class is the REST Controller for the Final Decision Transactions.
+ * it handles the HTTP requests and responses for the Final Decision.
+ */
 @RestController
 public class FinalDecisionController {
 
+
+    /**
+     * Article Service is used for handling the business logic of creating the transactions
+     */
     private final ArticleService articleService;
 
 
+    /**
+     * This constructor used to create a FinalDecisionController with the ArticleService
+     * @param articleService ArticleService that this controller uses to handle the business logic HTTP requests
+     */
     @Autowired
     public FinalDecisionController(ArticleService articleService) {
         this.articleService = articleService;
     }
 
 
+    /**
+     * This method is used for creating a new FinalDecisionTransaction for the blockchain. It handles HTTP POST request for the
+     * /final-decision endpoint. Consumes and produces JSON.
+     * @param finalDecisionEntityDTO used for DTO between Rest Controller and HTTP Client
+     * @return a ResponseEntity string with string body and HTTP response code.
+     * "Submission created successfully" with HTTP200 returned if transaction created successfully.
+     * "Submission creation due bad data" with HTTP400 returned if client request with bad data.
+     * "Submission creation failed" with HTTP500 returned if Internal server error occurs.
+     */
     @PostMapping(path = "/final-decision", consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> createSubmission(@RequestBody FinalDecisionEntityDTO finalDecisionEntityDTO) {
 

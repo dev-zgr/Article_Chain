@@ -2,8 +2,10 @@ package com.example.blockchain.ServiceLayer.Services.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
 import com.example.blockchain.DataLayer.Entities.ReviewRequestEntity;
+import com.example.blockchain.DataLayer.Entities.ReviewResponseEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
@@ -37,4 +39,12 @@ public interface ArticleService {
      * @throws IOException if there is an error in file Access
      */
     boolean submitPendingFinalDecision(FinalDecisionEntityDTO finalDecision) throws IOException;
+
+    /**
+     * This method is used to add a new Review Response Transaction in pending transactions.
+     * @param reviewRequestEntity that transaction will be added to pending transaction
+     * @return save status true if saved successfully, false if not
+     * @throws IOException if there is an error in file Access
+     */
+    boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException;
 }
