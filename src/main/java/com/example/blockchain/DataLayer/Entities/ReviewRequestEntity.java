@@ -42,7 +42,7 @@ public class ReviewRequestEntity extends TransactionEntity{
         this.reviewerResearchField = reviewer_resField;
         this.reviewer_email = reviewer_email;
         this.referringTxId = referringTxId;
-
+    }
     /**
      * Default constructor for creating an instance of ReviewRequestEntity with default values.
      */

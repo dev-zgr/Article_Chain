@@ -38,6 +38,12 @@ public class SubmitEntity extends TransactionEntity {
         this.paper_hash = "";
     }
 
+    /**
+     * Constructor for creating an instance of SubmitEntity with article and paper hash.
+     *
+     * @param article     The details of the article being submitted.
+     * @param paper_hash  The hash of the submitted paper.
+     */
     public SubmitEntity(ArticleEmbeddable article, String paper_hash) {
         this.article = article;
         this.paper_hash = paper_hash;

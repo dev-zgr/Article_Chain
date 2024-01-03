@@ -18,9 +18,16 @@ public interface SubmissionRepository extends JpaRepository<SubmitEntity, Long> 
      * Retrieves all submission entities associated with a specific block.
      *
      * @param blockEntity The block entity to which submissions are associated.
-     * @return A list of submission entities associated with the specified block.
+     * @return A list of SubmitEntity associated with the specified block.
      */
     List<SubmitEntity> getAllByMainBlock(BlockEntity blockEntity);
+
+    /**
+     * Retrieves submission entities by their transaction ID.
+     *
+     * @param tx_id The transaction ID associated with the submissions.
+     * @return A list of SubmitEntity associated with the specified transaction ID.
+     */
     List<SubmitEntity> getByTx_id(long tx_id);
 
 }
