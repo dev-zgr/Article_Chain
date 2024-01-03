@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This entity is used for defining the block structure of the blockchain.
+ * The primary goal of this entity is to represent a block in the blockchain
+ * and handle operations such as proof-of-work, hash calculations, and merkle root generation.
+ */
+
 @Entity
 @Data
 @Table(name = "Block")
@@ -39,6 +45,12 @@ public class BlockEntity {
     @JoinColumn(name = "block_id")
     List<TransactionEntity> transactionList;
 
+    /**
+     * Constructor for creating a block with a given index and previous block hash.
+     *
+     * @param index         The index of the block in the blockchain.
+     * @param previousHash  The hash of the previous block in the blockchain.
+     */
     public BlockEntity(int index, String previousHash){
         this.indexNo = index;
         this.nonce = 0;
@@ -48,6 +60,13 @@ public class BlockEntity {
         this.merkleRoot = calculateMerkleRoot();
     }
 
+    /**
+     * Constructor for creating a block with a given index, previous block hash, and list of transactions.
+     *
+     * @param index         The index of the block in the blockchain.
+     * @param previousHash  The hash of the previous block in the blockchain.
+     * @param transactions  List of transactions to be included in the block.
+     */
     public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions) {
         this.indexNo = index;
         this.nonce = 0;
@@ -58,12 +77,20 @@ public class BlockEntity {
         this.currentBlockHash = this.ProofOfWork();
     }
 
+    /**
+     * Default constructor for a block entity.
+     */
     public BlockEntity() {
         nonce = 0;
         previousBlockHash  = timestamp = merkleRoot = null;
         transactionList = new ArrayList<>();
     }
 
+    /**
+     * Performs the proof-of-work algorithm to find the hash that meets the target criteria.
+     *
+     * @return The hash of the block that satisfies the proof-of-work conditions.
+     */
     public String ProofOfWork() {
         String target = generateTarget();
 
@@ -79,6 +106,12 @@ public class BlockEntity {
         return hash;
     }
 
+    /**
+     * Calculates the SHA-256 hash of the given input string.
+     *
+     * @param input The input string to be hashed.
+     * @return The SHA-256 hash of the input string.
+     */
     public String calculateHash(String input){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -99,6 +132,11 @@ public class BlockEntity {
         }
     }
 
+    /**
+     * Calculates the Merkle root hash of the transactions in the block.
+     *
+     * @return The Merkle root hash of the block's transactions.
+     */
     public String calculateMerkleRoot(){
         List<String> transactionHashes = new ArrayList<>();
 
@@ -144,6 +182,11 @@ public class BlockEntity {
 
     }
 
+    /**
+     * Generates a target string for proof-of-work with a specified difficulty level.
+     *
+     * @return The target string with leading zeros based on the difficulty level.
+     */
     public static String generateTarget() {
         int difficulty = 4;
 

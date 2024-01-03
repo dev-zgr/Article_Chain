@@ -10,8 +10,8 @@ import java.io.IOException;
 
 /**
  * This interface is used to define the methods that will be used in the SubmissionServiceImplementation class.
- * Primary purpose of this interface is to define abstract set of methods that will used
- * To perform businesses logic operations on the Submissions that will  in the transaction .
+ * Primary purpose of this interface is to define abstract set of methods that will be used
+ * to perform businesses logic operations on the Submissions that will be in the transaction.
  */
 public interface ArticleService {
 

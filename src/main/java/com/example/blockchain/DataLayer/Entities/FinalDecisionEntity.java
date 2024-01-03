@@ -8,6 +8,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
+/**
+ * This entity is used for representing the final decision made on a review request.
+ * It extends the ReviewRequestEntity class and includes additional attributes for the decision.
+ */
 @Entity
 @Data
 @DiscriminatorValue("decision")
@@ -21,12 +25,24 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
     @Max(value = 10 , message = "Decision status must be between 0 and 10")
     private int decisionPoint;
 
+    /**
+     * Constructor for creating an instance of FinalDecisionEntity with review request details,
+     * decision file hash, and decision point status.
+     *
+     * @param reviewRequest      The review request details inherited from the ReviewRequestEntity class.
+     * @param decision_file_hash The hash of the decision file.
+     * @param decisionPoint      The status of the final decision point.
+     *                           0 means failed, 1 means revise, 2 means passed.
+     */
     public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint){
         super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getReferringSubmissionId());
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint; // 0 means failed, 1 means revise, 2 means passed
     }
 
+    /**
+     * Default constructor for creating an instance of FinalDecisionEntity with default values.
+     */
     public FinalDecisionEntity(){
         super();
         this.decisionPoint = 0;

@@ -13,6 +13,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 
+/**
+ * Base entity representing a transaction in the blockchain.
+ * It provides common attributes and methods for all types of transactions.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SubmitEntity.class, name = "submitEntity"),
@@ -36,6 +40,9 @@ public class TransactionEntity {
     @JsonBackReference
     BlockEntity mainBlock;
 
+    /**
+     * Default constructor for creating an instance of TransactionEntity with default values.
+     */
     public TransactionEntity() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -43,9 +50,11 @@ public class TransactionEntity {
         this.timestamp = now.format(formatter);
     }
 
-
-
-
+    /**
+     * Calculates the hash of the transaction using its ID and timestamp.
+     *
+     * @return The SHA-256 hash of the transaction.
+     */
     public String calculateTransactionHash() {
         String transactionData = String.valueOf(tx_id) + timestamp;
 

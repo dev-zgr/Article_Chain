@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 /**
- * JPA Repository for handling database operations of TransactionEntity
+ * JPA Repository for handling database operations of TransactionEntity.
  */
 public interface TransactionRepository extends  JpaRepository<TransactionEntity, Long> {
 }
