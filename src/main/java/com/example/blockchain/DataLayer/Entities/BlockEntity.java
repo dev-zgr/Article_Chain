@@ -112,7 +112,7 @@ public class BlockEntity {
      * @param input The input string to be hashed.
      * @return The SHA-256 hash of the input string.
      */
-    public String calculateHash(String input){
+    public static String calculateHash(String input){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes());

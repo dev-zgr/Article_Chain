@@ -2,9 +2,11 @@ package com.example.blockchain.ServiceLayer.Services.Implementations;
 
 import com.example.blockchain.DataLayer.Entities.*;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
+import com.example.blockchain.DataLayer.Repositories.Interfaces.ReviewRequestRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.SubmissionRepository;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
@@ -12,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -19,16 +23,19 @@ public class ArticleServiceImpl implements ArticleService {
     private final BlockChainModel blockChainModel;
     private final BlockRepository blockRepository;
     private final SubmissionRepository submissionRepository;
+    private final ReviewRequestRepository reviewRequestRepository;
+
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
 
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, TransactionHolder transactionHolder) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, TransactionHolder transactionHolder) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
         this.submissionRepository =submissionRepository;
         this.blockChainModel = blockChainModel;
+        this.reviewRequestRepository = reviewRequestRepository;
         this.transactionHolder = transactionHolder;
     }
 
@@ -76,7 +83,7 @@ public class ArticleServiceImpl implements ArticleService {
                 reviewRequest.reviewerName,
                 reviewRequest.reviewerResearchField,
                 reviewRequest.reviewerEmail,
-                reviewRequest.referringSubmissionId);
+                reviewRequest.referringTxId);
         return transactionHolder.addPendingTransaction(reviewRequestEntity);
     }
 
@@ -87,11 +94,41 @@ public class ArticleServiceImpl implements ArticleService {
                             finalDecision.reviewRequestEntityDTO.reviewerName,
                             finalDecision.reviewRequestEntityDTO.reviewerResearchField,
                             finalDecision.reviewRequestEntityDTO.reviewerEmail,
-                            finalDecision.reviewRequestEntityDTO.referringSubmissionId),
+                            finalDecision.reviewRequestEntityDTO.referringTxId),
                     finalDecision.decision_file_hash,
-                    finalDecision.decisionPoint
+                    finalDecision.decisionPoint, DecisionStatus.FirstReview
             );
+            finalDecisionEntity.setReview_hash(BlockEntity.calculateHash(finalDecisionEntity.toString()));
         return transactionHolder.addPendingTransaction(finalDecisionEntity);
     }
+
+    @Override
+    public boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException {
+        ReviewResponseEntity reviewResponseEntity = new ReviewResponseEntity(
+                reviewRequestEntity.reviewResponseLetterHash,
+                reviewRequestEntity.referringSubmissionId
+        );
+        return transactionHolder.addPendingTransaction(reviewResponseEntity);
+    }
+
+    @Override
+    public List<SubmitEntity> getReviewPendingArticles(){
+        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences();
+        return reviewPendingSubmissionIds
+                .stream()
+                .flatMap(id -> submissionRepository.getByTx_id(id).stream())
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<SubmitEntity> getCurrentlyReviewingArticles(){
+        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithThreeOccurrences();
+        return reviewPendingSubmissionIds
+                .stream()
+                .flatMap(id -> submissionRepository.getByTx_id(id).stream())
+                .collect(Collectors.toList());
+    }
+
 
 }

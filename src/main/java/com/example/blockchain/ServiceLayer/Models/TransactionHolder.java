@@ -92,7 +92,6 @@ public class TransactionHolder {
 
         if( waitingTransactions.size() <  transactionSize){
             for(Object e: waitingTransactions){
-                System.out.println((TransactionEntity)e);
                 transactionsToProcess.add((TransactionEntity) e);
             }
             waitingTransactions.clear();

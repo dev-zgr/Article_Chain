@@ -1,29 +1,28 @@
 package com.example.blockchain;
 
-import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
-import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
+import com.example.blockchain.DataLayer.Repositories.Interfaces.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * This class is responsible for running the Main Spring application.
+ */
 @SpringBootApplication
-public class BlockChainLastApplication implements CommandLineRunner{
+public class BlockChainLastApplication implements CommandLineRunner {
 
-    @Autowired
-    BlockRepository blockRepository;
+    private final ReviewRequestRepository reviewRequestRepository;
 
-    @Autowired
-    BlockChainService service;
+    public BlockChainLastApplication(ReviewRequestRepository reviewRequestRepository) {
+        this.reviewRequestRepository = reviewRequestRepository;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(BlockChainLastApplication.class, args);
-
-
     }
 
-    public void run(String... args) throws Exception{
-        System.out.println("hello");
-        System.out.println( "ALL BLOCKS ARE " + service.validateAllBlock());
+    @Override
+    public void run(String... args) throws Exception {
     }
 }

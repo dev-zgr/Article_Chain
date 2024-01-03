@@ -1,9 +1,7 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
-import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
-import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,18 +10,38 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * This class is the REST Controller for the Submission Transactions.
+ * It handles the HTTP requests and responses for the Submission Transactions.
+ */
 @RestController
 public class SubmissionController {
 
+    /**
+     * Article Service is used for handling the business logic of creating the transactions
+     */
     private final ArticleService articleService;
 
 
+    /**
+     * This constructor used to create a ReviewRequestController with the ArticleService
+     * @param articleService ArticleService that this controller uses to handle the business logic HTTP requests
+     */
     @Autowired
     public SubmissionController(ArticleService articleService) {
         this.articleService = articleService;
     }
 
 
+    /**
+     * This method is used for creating a new Submission transaction for the blockchain. It handles HTTP POST request for the
+     * /submission endpoint. Consumes and produces JSON.
+     * @param submissionRequestDTO used for DTO between Rest Controller and HTTP Client
+     * @return a ResponseEntity string with string body and HTTP response code.
+     * "Submission created successfully" with HTTP200 returned if transaction created successfully.
+     * "Submission creation failed due bad data" with HTTP400 returned if client request with bad data.
+     * "Submission creation failed" with HTTP500 returned if Internal server error occurs.
+     */
     @PostMapping(path = "/submission", consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> createSubmission(@RequestBody SubmissionRequestDTO submissionRequestDTO) {
 
@@ -31,8 +49,8 @@ public class SubmissionController {
         try {
 
             boolean status = articleService.submitPendingSubmission(
-                    submissionRequestDTO.getArticleEmbeddable(),
-                    submissionRequestDTO.getPaperHash());
+                    submissionRequestDTO.articleEmbeddable,
+                    submissionRequestDTO.paperHash);
 
             if (status) {
                 return ResponseEntity
@@ -42,7 +60,7 @@ public class SubmissionController {
             } else {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
-                        .body("Submission creation due bad data");
+                        .body("Submission creation failed due bad data");
             }
         } catch (Exception e) {
             return ResponseEntity
@@ -54,20 +72,11 @@ public class SubmissionController {
 
     @GetMapping(path = "/submission", produces = "application/json")
     public ResponseEntity<List<SubmitEntity>> getAllSubmissions(
-            @RequestParam(defaultValue = "null") String department,
-            @RequestParam(defaultValue = "null") String authorName,
-            @RequestParam(defaultValue = "null") String articleKeywords,
-            @RequestParam(defaultValue = "null") String institution,
-            @RequestParam(defaultValue = "null") String article_type,
-            @RequestParam(defaultValue = "null") String article_title,
             @RequestParam(defaultValue = "false") String verified
     ) {
-
-
         return null;
     }
 
-    //TODO get mapping ekle
 
 
 }
