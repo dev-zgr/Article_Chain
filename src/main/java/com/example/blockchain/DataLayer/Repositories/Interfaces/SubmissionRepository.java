@@ -11,5 +11,6 @@ import java.util.List;
 @Repository
 public interface SubmissionRepository extends JpaRepository<SubmitEntity, Long> {
     List<SubmitEntity> getAllByMainBlock(BlockEntity blockEntity);
+    List<SubmitEntity> getByTx_id(long tx_id);
 
 }

@@ -11,10 +11,6 @@ public class SubmitEntity extends TransactionEntity {
 
     ArticleEmbeddable article;
 
-    @Column(name = "submission_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long submisionId;
-
     @Column(name = "paper_hash")
     private String paper_hash;
 
@@ -29,9 +25,8 @@ public class SubmitEntity extends TransactionEntity {
         this.paper_hash = "";
     }
 
-    public SubmitEntity(ArticleEmbeddable article, long submisionId, String paper_hash) {
+    public SubmitEntity(ArticleEmbeddable article, String paper_hash) {
         this.article = article;
-        this.submisionId = submisionId;
         this.paper_hash = paper_hash;
     }
 }

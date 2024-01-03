@@ -33,7 +33,7 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
 
 
     public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type){
-        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getReferringSubmissionId());
+        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getReferringTxId());
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;

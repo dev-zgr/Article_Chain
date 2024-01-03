@@ -21,21 +21,21 @@ public class ReviewRequestEntity extends TransactionEntity{
     @Column(name = "reviewer_email")
     private String reviewer_email;
 
-    @Column(name = "referring_submission_id")
-    private long referringSubmissionId;
+    @Column(name = "referring_tx_id")
+    private long referringTxId;
 
-    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long referringSubmissionId) {
+    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long referringTxId) {
         super();
         this.reviewer_name = reviewer_name;
         this.reviewerResearchField = reviewer_resField;
         this.reviewer_email = reviewer_email;
-        this.referringSubmissionId = referringSubmissionId;
+        this.referringTxId = referringTxId;
     }
 
     public ReviewRequestEntity(){
 
         this.reviewer_name = this.reviewerResearchField = this.reviewer_email = "";
-        referringSubmissionId = -1;
+        referringTxId = -1;
     }
 
 }

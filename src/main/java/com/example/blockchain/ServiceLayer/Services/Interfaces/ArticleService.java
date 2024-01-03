@@ -3,12 +3,14 @@ package com.example.blockchain.ServiceLayer.Services.Interfaces;
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
 import com.example.blockchain.DataLayer.Entities.ReviewRequestEntity;
 import com.example.blockchain.DataLayer.Entities.ReviewResponseEntity;
+import com.example.blockchain.DataLayer.Entities.SubmitEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * This interface is used to define the methods that will be used in the SubmissionServiceImplementation class.
@@ -47,4 +49,11 @@ public interface ArticleService {
      * @throws IOException if there is an error in file Access
      */
     boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException;
+
+    List<SubmitEntity> getReviewPendingArticles();
+
+    List<SubmitEntity> getCurrentlyReviewingArticles();
+
+    List<SubmitEntity> getReviewedArticles();
+
 }
