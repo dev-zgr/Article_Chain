@@ -25,6 +25,7 @@ public class SubmissionController {
 
     /**
      * This constructor used to create a ReviewRequestController with the ArticleService
+     *
      * @param articleService ArticleService that this controller uses to handle the business logic HTTP requests
      */
     @Autowired
@@ -36,6 +37,7 @@ public class SubmissionController {
     /**
      * This method is used for creating a new Submission transaction for the blockchain. It handles HTTP POST request for the
      * /submission endpoint. Consumes and produces JSON.
+     *
      * @param submissionRequestDTO used for DTO between Rest Controller and HTTP Client
      * @return a ResponseEntity string with string body and HTTP response code.
      * "Submission created successfully" with HTTP200 returned if transaction created successfully.
@@ -70,13 +72,89 @@ public class SubmissionController {
     }
 
 
-    @GetMapping(path = "/submission", produces = "application/json")
-    public ResponseEntity<List<SubmitEntity>> getAllSubmissions(
-            @RequestParam(defaultValue = "false") String verified
+    @GetMapping(path = "/pending-submission", produces = "application/json")
+    public ResponseEntity<List<SubmitEntity>> getPendingSubmissions(
+            @RequestParam(name = "category", defaultValue = "null", required = false) String category,
+            @RequestParam(name = "title", defaultValue = "null", required = false) String title,
+            @RequestParam(name = "author", defaultValue = "null", required = false) String author,
+            @RequestParam(name = "department", defaultValue = "null", required = false) String department,
+            @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
+            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword
     ) {
-        return null;
+
+        try {
+            List<SubmitEntity> desiredSubmissions = articleService.getReviewPendingArticles(
+                    handleNullParameter(category),
+                    handleNullParameter(title),
+                    handleNullParameter(author),
+                    handleNullParameter(department),
+                    handleNullParameter(institution),
+                    handleNullParameter(keyword)
+            );
+            if (desiredSubmissions.isEmpty()) {
+                return ResponseEntity
+                        .status(204)
+                        .body(null);
+            }
+            return ResponseEntity
+                    .status(200)
+                    .body(desiredSubmissions);
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
+
     }
 
+
+    @GetMapping(path = "/verified-submission", produces = "application/json")
+    public ResponseEntity<List<SubmitEntity>> getVerifiedSubmissions(
+            @RequestParam(name = "category", defaultValue = "null", required = false) String category,
+            @RequestParam(name = "title", defaultValue = "null", required = false) String title,
+            @RequestParam(name = "author", defaultValue = "null", required = false) String author,
+            @RequestParam(name = "department", defaultValue = "null", required = false) String department,
+            @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
+            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword) {
+
+
+
+        try {
+            List<SubmitEntity> desiredSubmissions = articleService.getVerifiedSubmissions(
+                    handleNullParameter(category),
+                    handleNullParameter(title),
+                    handleNullParameter(author),
+                    handleNullParameter(department),
+                    handleNullParameter(institution),
+                    handleNullParameter(keyword)
+                    );
+            if (desiredSubmissions.isEmpty()) {
+                return ResponseEntity
+                        .status(204)
+                        .body(null);
+            }
+            return ResponseEntity
+                    .status(200)
+                    .body(desiredSubmissions);
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
+
+    }
+
+
+    private String handleNullParameter(String parameter) {
+        if ("null".equals(parameter)) {
+            return null;
+        }
+        return parameter;
+    }
 
 
 }

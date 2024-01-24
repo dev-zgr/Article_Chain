@@ -91,9 +91,7 @@ public class TransactionHolder {
         List<TransactionEntity> transactionsToProcess = new LinkedList<>();
 
         if( waitingTransactions.size() <  transactionSize){
-            for(Object e: waitingTransactions){
-                transactionsToProcess.add((TransactionEntity) e);
-            }
+            transactionsToProcess.addAll(waitingTransactions);
             waitingTransactions.clear();
             objectWriter.writeValue(resourceFile, waitingTransactions);
         }else{

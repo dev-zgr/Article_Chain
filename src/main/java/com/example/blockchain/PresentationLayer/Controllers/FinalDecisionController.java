@@ -1,13 +1,17 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
+import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 /**
  * This class is the REST Controller for the Final Decision Transactions.
@@ -43,27 +47,29 @@ public class FinalDecisionController {
      * "Submission creation failed" with HTTP500 returned if Internal server error occurs.
      */
     @PostMapping(path = "/final-decision", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<String> createSubmission(@RequestBody FinalDecisionEntityDTO finalDecisionEntityDTO) {
-
+    public ResponseEntity<String> createSubmission(@RequestParam(name = "tx_id") long txId , @RequestBody FinalDecisionEntityDTO finalDecisionEntityDTO) {
 
         try {
-
-            boolean status = articleService.submitPendingFinalDecision(finalDecisionEntityDTO);
-
-            if (status) {
+            boolean status = articleService.submitFinalDecision(finalDecisionEntityDTO,txId);
+            if(status){
                 return ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .header("Content-Type", "application/json")
-                        .body("Submission created successfully");
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body("Submission creation due bad data");
+                        .status(200)
+                        .body("Final Decision successfully created");
+            }else {
+                throw new Exception("couldn't added");
             }
-        } catch (Exception e) {
+        }catch (NoSuchReviewRequest e){
+            return ResponseEntity
+                    .status(400)
+                    .body("There is no such review Request!");
+        }catch (IOException e) {
+            return ResponseEntity
+                    .status(400)
+                    .body("Bad Data!");
+        }catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Submission creation failed");
+                    .body("Final Decision creation failed");
         }
     }
 }

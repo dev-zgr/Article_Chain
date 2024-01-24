@@ -14,7 +14,7 @@ import java.util.List;
 @Transactional
 public class BlockRepositoryImpl implements BlockRepository {
 
-    private EntityManager entityManagerFactory;
+    private final EntityManager entityManagerFactory;
 
     @Autowired
     public BlockRepositoryImpl(EntityManager entityManagerFactory){

@@ -17,38 +17,65 @@ import lombok.Data;
 public class ArticleEmbeddable {
 
 
+    /**
+     * Fields for storing the title of the article.
+     */
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must be up to 100 characters")
     private String article_title;
 
+    /**
+     * Fields for storing the type of the article.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "Type must be up to 100 characters")
     private String article_type;
 
+    /**
+     * Fields for storing the name of the author(s) of the article.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "Name must be up to 100 characters")
     private String author_name;
 
+    /**
+     * Fields for storing the research field of the article.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "Name must be up to 100 characters")
     private String article_resField;
 
+    /**
+     * Fields for storing the date when the article was published.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "Name must be up to 100 characters")
     private String article_date;
 
+    /**
+     * Fields for storing the keywords associated with the article.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "Name must be up to 100 characters")
     private String article_keywords;
 
 
+    /**
+     * Fields for storing the email address of the author(s). It's must be a valid email address.
+     */
     @Email
     private String author_email;
 
+    /**
+     * Fields for storing the institution to which the author(s) is/are affiliated.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "institution must be up to 100 characters")
     private String institution;
 
+    /**
+     * Fields for storing the department within the institution to which the author(s) belongs.
+     */
     @NotBlank(message = "Type is required")
     @Size(max = 100, message = "department must be up to 100 characters")
     private String department;

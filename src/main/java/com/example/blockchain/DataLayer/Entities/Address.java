@@ -15,12 +15,22 @@ import lombok.Data;
 @Table(name = "transaction")
 public class Address {
 
+    /**
+     * Fields for storing the country.
+     */
     @NotBlank(message = "Country can't be blank")
     private String country;
+
+    /**
+     * Fields for storing the state.
+     */
 
     @NotBlank(message = "State can't be blank")
     private String state;
 
+    /**
+     * Fields for storing the zip code.
+     */
     @NotBlank(message = "zipCode can't be blank")
     private String zipCode;
 

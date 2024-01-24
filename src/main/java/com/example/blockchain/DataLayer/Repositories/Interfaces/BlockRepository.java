@@ -2,8 +2,6 @@ package com.example.blockchain.DataLayer.Repositories.Interfaces;
 
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -85,6 +83,6 @@ public interface BlockRepository {
      * @param blockEntity The block entity with updated information.
      * @return True if the block was successfully updated, false otherwise.
      */
-    public boolean updateBlock(BlockEntity blockEntity) ;
+    boolean updateBlock(BlockEntity blockEntity) ;
 
     }

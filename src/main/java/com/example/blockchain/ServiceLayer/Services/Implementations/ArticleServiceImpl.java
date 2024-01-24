@@ -2,6 +2,7 @@ package com.example.blockchain.ServiceLayer.Services.Implementations;
 
 import com.example.blockchain.DataLayer.Entities.*;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
+import com.example.blockchain.DataLayer.Repositories.Interfaces.FinalDecisionRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.ReviewRequestRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.SubmissionRepository;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
@@ -9,12 +10,14 @@ import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewReques
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
+import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,18 +27,20 @@ public class ArticleServiceImpl implements ArticleService {
     private final BlockRepository blockRepository;
     private final SubmissionRepository submissionRepository;
     private final ReviewRequestRepository reviewRequestRepository;
+    private final FinalDecisionRepository finalDecisionRepository;
 
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
 
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, TransactionHolder transactionHolder) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
-        this.submissionRepository =submissionRepository;
+        this.submissionRepository = submissionRepository;
         this.blockChainModel = blockChainModel;
         this.reviewRequestRepository = reviewRequestRepository;
+        this.finalDecisionRepository = finalDecisionRepository;
         this.transactionHolder = transactionHolder;
     }
 
@@ -48,17 +53,17 @@ public class ArticleServiceImpl implements ArticleService {
 
         //get last block
         BlockEntity lastBlock = blockRepository.getBlockLastBlock();
-        if(lastBlock.getTransactionList().size() >= blockChainModel.getMaxTransactionsPerBlock()){
+        if (lastBlock.getTransactionList().size() >= blockChainModel.getMaxTransactionsPerBlock()) {
 
 
             //create new block
-            BlockEntity  recentBlock= blockChainService.mineBlock();
+            BlockEntity recentBlock = blockChainService.mineBlock();
             recentBlock.getTransactionList().add(submitEntity);
             submitEntity.setMainBlock(recentBlock);
             submissionRepository.save(submitEntity);
             blockRepository.updateBlock(recentBlock);
 
-        }else {
+        } else {
             submitEntity.setMainBlock(lastBlock);
             lastBlock.getTransactionList().add(submitEntity);
             submissionRepository.save(submitEntity);
@@ -66,7 +71,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    public boolean submitPendingSubmission(ArticleEmbeddable articleEmbeddable, String paperHash) throws IOException{
+    public boolean submitPendingSubmission(ArticleEmbeddable articleEmbeddable, String paperHash) throws IOException {
         //create submission entity
         SubmitEntity submitEntity = new SubmitEntity();
         submitEntity.setArticle(articleEmbeddable);
@@ -77,7 +82,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public boolean submitPendingReviewRequest(ReviewRequestDTO reviewRequest)throws IOException {
+    public boolean submitPendingReviewRequest(ReviewRequestDTO reviewRequest) throws IOException {
         //create review request entity
         ReviewRequestEntity reviewRequestEntity = new ReviewRequestEntity(
                 reviewRequest.reviewerName,
@@ -88,18 +93,20 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public boolean submitPendingFinalDecision(FinalDecisionEntityDTO finalDecision) throws IOException {
+    public boolean submitFinalDecision(FinalDecisionEntityDTO finalDecision, long txId) throws NoSuchReviewRequest, IOException {
+        Optional<ReviewRequestEntity> referringReviewRequest = reviewRequestRepository.findById(txId);
+        if (referringReviewRequest.isEmpty()) {
+            throw new NoSuchReviewRequest("There is no such review request");
+        } else {
             FinalDecisionEntity finalDecisionEntity = new FinalDecisionEntity(
-                    new ReviewRequestEntity(
-                            finalDecision.reviewRequestEntityDTO.reviewerName,
-                            finalDecision.reviewRequestEntityDTO.reviewerResearchField,
-                            finalDecision.reviewRequestEntityDTO.reviewerEmail,
-                            finalDecision.reviewRequestEntityDTO.referringTxId),
+                    referringReviewRequest.get(),
                     finalDecision.decision_file_hash,
-                    finalDecision.decisionPoint, DecisionStatus.FirstReview
+                    finalDecision.decisionPoint,
+                    finalDecision.review_type,
+                    finalDecision.review_hash
             );
-            finalDecisionEntity.setReview_hash(BlockEntity.calculateHash(finalDecisionEntity.toString()));
-        return transactionHolder.addPendingTransaction(finalDecisionEntity);
+            return transactionHolder.addPendingTransaction(finalDecisionEntity);
+        }
     }
 
     @Override
@@ -112,28 +119,38 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<SubmitEntity> getReviewPendingArticles(){
-        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences();
+    public List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword) {
+        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences(category, title, author, department, intuition, keyword);
         return reviewPendingSubmissionIds
                 .stream()
-                .flatMap(id -> submissionRepository.getByTx_id(id).stream())
+                .flatMap(id -> submissionRepository.getByTxId(id).stream())
                 .collect(Collectors.toList());
-
     }
 
     @Override
-    public List<SubmitEntity> getCurrentlyReviewingArticles(){
+    public List<SubmitEntity> getCurrentlyReviewingArticles() {
+        /*
         List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithThreeOccurrences();
         return reviewPendingSubmissionIds
                 .stream()
                 .flatMap(id -> submissionRepository.getByTx_id(id).stream())
                 .collect(Collectors.toList());
-    }
 
-    @Override
-    public List<SubmitEntity> getReviewedArticles() {
+         */
         return null;
     }
 
+
+
+    @Override
+    public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword) {
+        List<Long> reviewPendingSubmissionIds = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition, keyword);
+        return reviewPendingSubmissionIds
+                .stream()
+                .flatMap(id -> submissionRepository.getByTxId(id).stream())
+                .collect(Collectors.toList());
+    }
+    //TODO transaction merkle rootlari hesaplanacak
+    //TODO private key public key ile sign edilecek
 
 }

@@ -1,7 +1,6 @@
 package com.example.blockchain.PresentationLayer.DataTransferObjects;
 
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
-import lombok.Data;
 
 
 /**

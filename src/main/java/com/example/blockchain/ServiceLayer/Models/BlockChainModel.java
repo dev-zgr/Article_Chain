@@ -13,26 +13,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This class if responsible for managing the blockchain model
+ * It handles block adding logic and block validation logic
+ */
 @Component
 @Data
 public class BlockChainModel {
+    /**
+     * UUID of the individual node
+     */
     private UUID uuid;
+
+    /**
+     * List of transactions in the blockchain
+     */
     private List<TransactionEntity> transactionEntities;
+
+    /**
+     * Maximum number of transactions per block
+     */
 
     @Value("${blockchain.maxTransactionsPerBlock:10}")
     private int maxTransactionsPerBlock;
 
+
+    /**
+     * Default constructor
+     */
     public BlockChainModel(){
         uuid = new UUID(0,0);
         transactionEntities = new ArrayList<>();
     }
 
+    /**
+     * Constructor with parameters
+     * @param uuid UUID of the individual node
+     * @param transactionEntities List of transactions in the blockchain
+     * @param maxTransactionsPerBlock Maximum number of transactions per block
+     */
     public BlockChainModel(UUID uuid, List<TransactionEntity> transactionEntities, int maxTransactionsPerBlock) {
         this.uuid = uuid;
         this.transactionEntities = transactionEntities;
         this.maxTransactionsPerBlock = maxTransactionsPerBlock;
     }
 
+    /**
+     * calculates the hash of given bytes
+     * @param hash bytes to be hashed
+     * @return hash of the bytes
+     */
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (byte h : hash) {
@@ -45,6 +75,13 @@ public class BlockChainModel {
         return hexString.toString();
     }
 
+    /**
+     * Checks if blockchain valid based on previous and current block by comparing hashes
+     * and recalculating the hash of the current block
+     * @param previousBlock previous block in the blockchain
+     * @param currentBlock current block in the blockchain
+     * @return true if blockchain valid, false if not
+     */
     public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock){
         try{
             String target = BlockEntity.generateTarget();
@@ -72,21 +109,18 @@ public class BlockChainModel {
 
     /**
      * Posts recent mined block to external nodes
-     * @param ipAddress ip address of external node
+     *
+     * @param ipAddress   ip address of external node
      * @param blockToPost block to post
-     * @return true if block posted successfully false otherwise
      */
-    public boolean postBlock(String ipAddress, BlockEntity blockToPost){
+    public void postBlock(String ipAddress, BlockEntity blockToPost){
         RestTemplate restTemplate = new RestTemplate();
 
         try{
             var response = restTemplate.postForObject(ipAddress +"/block_chain/block", blockToPost, String.class);
             if(response != null){
-                return response.equals("Request Accepted!");
             }
-            return false;
-        }catch (Exception e){
-            return false;
+        }catch (Exception ignored){
         }
 
     }

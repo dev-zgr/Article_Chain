@@ -1,17 +1,15 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.MessageDigest;
-
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Base entity representing a transaction in the blockchain.
@@ -28,14 +26,23 @@ import lombok.Data;
 @Table(name = "transaction")
 public class TransactionEntity {
 
+    /**
+     * Fields for storing the ID of the transaction.
+     */
     @Id
     @Column(name = "tx_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long tx_id;
 
+    /**
+     * Fields for storing the timestamp of the transaction.
+     */
     @Column(name = "timestamp")
     private String timestamp;
 
+    /**
+     * Fields for storing the hash of the transaction. This fields creates Many-To-One relationship with the BlockEntity.
+     */
     @ManyToOne
     @JsonBackReference
     BlockEntity mainBlock;
@@ -56,7 +63,7 @@ public class TransactionEntity {
      * @return The SHA-256 hash of the transaction.
      */
     public String calculateTransactionHash() {
-        String transactionData = String.valueOf(tx_id) + timestamp;
+        String transactionData = tx_id + timestamp;
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

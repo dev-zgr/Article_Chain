@@ -1,6 +1,5 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -21,17 +20,29 @@ import lombok.ToString;
 @DiscriminatorValue("decision")
 public class FinalDecisionEntity extends ReviewRequestEntity {
 
+    /**
+     * Fields for storing the hash of the decision file.
+     */
     @Column(name = "decision_file_hash")
     private String decision_file_hash;
 
-    @Column(name = "decision_status")
+    /**
+     * Fields for storing point of the decision.
+     */
+    @Column(name = "decision_point")
     @Min(value = 0, message = "Decision status must be between 0 and 10")
     @Max(value = 10 , message = "Decision status must be between 0 and 10")
     private int decisionPoint;
 
+    /**
+     * Fields for storing the hash of the review.
+     */
     @Column(name = "review_hash")
     private String review_hash;
 
+    /**
+     * Fields for storing the type of the review. (First review, revision etc.)
+     */
     @Column(name = "review_type")
     private DecisionStatus review_type;
 
@@ -43,12 +54,14 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * @param decision_file_hash The hash of the decision file.
      * @param decisionPoint      The status of the final decision point.
      * @param review_type        The type of the review.
+     * @param review_hash
      */
-    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type){
+    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash){
         super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getReferringTxId());
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;
+        this.review_hash =review_hash;
     }
 
     /**

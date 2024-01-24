@@ -13,8 +13,14 @@ import lombok.Data;
 @DiscriminatorValue("submit")
 public class SubmitEntity extends TransactionEntity {
 
+    /**
+     * Fields for storing the details of the article being submitted.
+     */
     ArticleEmbeddable article;
 
+    /**
+     * Fields for storing the hash of the submitted paper.
+     */
     @Column(name = "paper_hash")
     private String paper_hash;
 

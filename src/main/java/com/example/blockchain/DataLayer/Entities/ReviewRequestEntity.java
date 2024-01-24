@@ -3,6 +3,7 @@ package com.example.blockchain.DataLayer.Entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,15 +17,28 @@ import lombok.EqualsAndHashCode;
 @DiscriminatorValue("review")
 public class ReviewRequestEntity extends TransactionEntity{
 
+    /**
+     * Fields for storing the name of the reviewer.
+     */
     @Column(name = "reviewer_name")
     private String reviewer_name;
 
+    /**
+     * Fields for storing the research field of the reviewer.
+     */
     @Column(name = "reviewer_research_field")
     private String reviewerResearchField;
 
+    /**
+     * Fields for storing the email of the reviewer.It's must be a valid email.
+     */
+    @Email
     @Column(name = "reviewer_email")
     private String reviewer_email;
 
+    /**
+     * Fields for storing the ID of the referring transaction.
+     */
     @Column(name = "referring_tx_id")
     private long referringTxId;
 

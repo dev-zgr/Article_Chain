@@ -1,5 +1,6 @@
 package com.example.blockchain.PresentationLayer.DataTransferObjects;
 
+import com.example.blockchain.DataLayer.Entities.DecisionStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -24,10 +25,10 @@ public class FinalDecisionEntityDTO {
     @Min(value = 0, message = "Decision point must be between 0 and 10")
     public int decisionPoint;
 
-    /**
-     * This is the review request entity that the final decision is referring to.
-     */
-    public ReviewRequestDTO reviewRequestEntityDTO;
+    public DecisionStatus review_type;
+
+    public String review_hash;
+
 
     /**
      * This constructor is used to create the final decision entity with the decision file hash, decision point and the
@@ -35,12 +36,13 @@ public class FinalDecisionEntityDTO {
      *
      * @param decision_file_hash      This is the hash of the final decision file.
      * @param decisionPoint           This is the decision point of the final decision.
-     * @param reviewRequestEntityDTO  This is the review request entity that the final decision is referring to.
+     * @param review_type             This is the decision point of the final decision.
      */
-    public FinalDecisionEntityDTO(String decision_file_hash, int decisionPoint, ReviewRequestDTO reviewRequestEntityDTO) {
+    public FinalDecisionEntityDTO(String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash) {
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
-        this.reviewRequestEntityDTO = reviewRequestEntityDTO;
+        this.review_type = review_type;
+        this.review_hash = review_hash;
     }
 
     /**
@@ -49,7 +51,8 @@ public class FinalDecisionEntityDTO {
     public FinalDecisionEntityDTO(){
         this.decision_file_hash = "";
         this.decisionPoint = -1;
-        this.reviewRequestEntityDTO = new ReviewRequestDTO();
+        this.review_type = null;
+        this.review_hash = "";
     }
 
 

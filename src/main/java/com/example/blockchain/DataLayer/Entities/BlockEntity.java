@@ -21,25 +21,46 @@ import java.util.List;
 @Table(name = "Block")
 public class BlockEntity {
 
+    /**
+     * Fields for storing the index of the block in the blockchain.
+     */
     @Id
     @Column(name = "index_no")
     private int indexNo;
 
+    /**
+     * Fields for storing the timestamp of the block.
+     */
     @Column(name = "timestamp")
     private String timestamp;
 
+    /**
+     * Fields for storing the nonce of the block.
+     */
     @Column(name = "nonce")
     private int nonce;
 
+    /**
+     * Fields for storing the hash of the previous block in the blockchain.
+     */
     @Column(name = "previous_block_hash")
     private String previousBlockHash;
 
+    /**
+     * Fields for storing the hash of the current block in the blockchain.
+     */
     @Column(name = "current_block_hash")
     private String currentBlockHash;
 
+    /**
+     * Fields for storing the Merkle root hash of the block.
+     */
     @Column(name = "merkle_root")
     private String merkleRoot;
 
+    /**
+     * Fields for storing the list of transactions in the block.
+     */
     @OneToMany(fetch = FetchType.EAGER)
     @JsonManagedReference
     @JoinColumn(name = "block_id")

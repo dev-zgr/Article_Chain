@@ -2,8 +2,9 @@ package com.example.blockchain.DataLayer.Repositories.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
-import org.springframework.cglib.core.Block;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,9 +26,11 @@ public interface SubmissionRepository extends JpaRepository<SubmitEntity, Long> 
     /**
      * Retrieves submission entities by their transaction ID.
      *
-     * @param tx_id The transaction ID associated with the submissions.
+     * @param txId The transaction ID associated with the submissions.
      * @return A list of SubmitEntity associated with the specified transaction ID.
      */
-    List<SubmitEntity> getByTx_id(long tx_id);
+    @Query("SELECT s FROM SubmitEntity s WHERE s.tx_id = :txId")
+    List<SubmitEntity> getByTxId(@Param("txId") long txId);
+
 
 }
