@@ -10,6 +10,7 @@ import java.util.List;
 
 @Repository
 public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEntity,Long> {
+    // TODO puani konfigure edilebilir yap
     @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id IN (" +
             "       SELECT r.referringTxId " +
             "       FROM FinalDecisionEntity r " +

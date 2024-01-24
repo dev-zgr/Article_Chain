@@ -87,6 +87,7 @@ public class BlockChainModel {
             String target = BlockEntity.generateTarget();
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
+
                 if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
 
                     return false;
@@ -97,6 +98,8 @@ public class BlockChainModel {
                 if (!current_block_hash.startsWith(target)) {
                     return false;
                 }
+                // TODO Transaction imzasi kontrol edilmeli
+                // TODO public key private key checking
 
                 return true;
 
