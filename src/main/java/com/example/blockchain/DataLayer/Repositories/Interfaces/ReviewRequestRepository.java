@@ -30,7 +30,8 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
             "AND (:author IS NULL OR t.article.author_name LIKE %:author%) " +
             "AND (:department IS NULL OR t.article.department = :department) " +
             "AND (:institution IS NULL OR t.article.institution = :institution)" +
-            "AND (:keyword IS NULL OR t.article.article_keywords LIKE %:keyword%)"
+            "AND (:keyword IS NULL OR t.article.article_keywords LIKE %:keyword%) " +
+            "AND (:txId IS NULL OR t.tx_id = :txId) "
             )
     List<Long> findReferringSubmissionIdsWithLessThanThreeOccurrences(
             @Param("category") String category,
@@ -38,9 +39,8 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
             @Param("author") String author,
             @Param("department") String department,
             @Param("institution") String institution,
-            @Param("keyword") String keyword
-            //TODO add tx_id parameter because you'll need to retrieve them in front end by id
-
+            @Param("keyword") String keyword,
+            @Param("txId") Long txId
     );
 
 

@@ -79,8 +79,9 @@ public class SubmissionController {
             @RequestParam(name = "author", defaultValue = "null", required = false) String author,
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
-            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword
-    ) {
+            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
+            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id)
+            {
 
         try {
             List<SubmitEntity> desiredSubmissions = articleService.getReviewPendingArticles(
@@ -89,7 +90,8 @@ public class SubmissionController {
                     handleNullParameter(author),
                     handleNullParameter(department),
                     handleNullParameter(institution),
-                    handleNullParameter(keyword)
+                    handleNullParameter(keyword),
+                    parseString(tx_id)
             );
             if (desiredSubmissions.isEmpty()) {
                 return ResponseEntity
@@ -117,9 +119,8 @@ public class SubmissionController {
             @RequestParam(name = "author", defaultValue = "null", required = false) String author,
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
-            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword) {
-
-
+            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
+            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id) {
 
         try {
             List<SubmitEntity> desiredSubmissions = articleService.getVerifiedSubmissions(
@@ -128,8 +129,9 @@ public class SubmissionController {
                     handleNullParameter(author),
                     handleNullParameter(department),
                     handleNullParameter(institution),
-                    handleNullParameter(keyword)
-                    );
+                    handleNullParameter(keyword),
+                    parseString(tx_id)
+            );
             if (desiredSubmissions.isEmpty()) {
                 return ResponseEntity
                         .status(204)
@@ -148,6 +150,42 @@ public class SubmissionController {
 
     }
 
+    @GetMapping(path = "/rejected-submission", produces = "application/json")
+    public ResponseEntity<List<SubmitEntity>> findRejectedSubmissions(
+            @RequestParam(name = "category", defaultValue = "null", required = false) String category,
+            @RequestParam(name = "title", defaultValue = "null", required = false) String title,
+            @RequestParam(name = "author", defaultValue = "null", required = false) String author,
+            @RequestParam(name = "department", defaultValue = "null", required = false) String department,
+            @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
+            @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
+            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id)
+    {
+        try {
+            List<SubmitEntity> desiredSubmissions = articleService.getRejectedSubmissions(
+                    handleNullParameter(category),
+                    handleNullParameter(title),
+                    handleNullParameter(author),
+                    handleNullParameter(department),
+                    handleNullParameter(institution),
+                    handleNullParameter(keyword),
+                    parseString(tx_id)
+            );
+            if (desiredSubmissions.isEmpty()) {
+                return ResponseEntity
+                        .status(204)
+                        .body(null);
+            }
+            return ResponseEntity
+                    .status(200)
+                    .body(desiredSubmissions);
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
 
     private String handleNullParameter(String parameter) {
         if ("null".equals(parameter)) {
@@ -155,6 +193,15 @@ public class SubmissionController {
         }
         return parameter;
     }
+
+    private Long parseString(String number) throws Exception{
+        if ("null".equals(number)) {
+            return null;
+        }
+        return Long.parseLong(number);
+    }
+
+
 
 
 }

@@ -1,8 +1,6 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -44,6 +42,7 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * Fields for storing the type of the review. (First review, revision etc.)
      */
     @Column(name = "review_type")
+    @Enumerated(EnumType.ORDINAL)
     private DecisionStatus review_type;
 
     /**

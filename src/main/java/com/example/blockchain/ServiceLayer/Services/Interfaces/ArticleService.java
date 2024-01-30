@@ -62,7 +62,7 @@ public interface ArticleService {
      * @param keyword of article
      * @return list of desired pending articles
      */
-    List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword);
+    List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword, Long tx_id);
 
     /**
      * This method is used to get all currently reviewing transactions.
@@ -71,5 +71,7 @@ public interface ArticleService {
      */
     List<SubmitEntity> getCurrentlyReviewingArticles();
 
-    List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword);
+    List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId);
+
+    List<SubmitEntity> getRejectedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId);
 }

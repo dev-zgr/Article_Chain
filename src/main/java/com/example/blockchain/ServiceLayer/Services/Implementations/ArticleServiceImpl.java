@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -119,8 +120,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword) {
-        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences(category, title, author, department, intuition, keyword);
+    public List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword, Long tx_id) {
+        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences(category, title, author, department, intuition, keyword,tx_id);
         return reviewPendingSubmissionIds
                 .stream()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
@@ -141,16 +142,47 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
 
-
     @Override
-    public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword) {
-        List<Long> reviewPendingSubmissionIds = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition, keyword);
+    public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId) {
+        List<Long> reviewPendingSubmissionIds = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition, keyword,txId);
         return reviewPendingSubmissionIds
                 .stream()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
                 .collect(Collectors.toList());
     }
+
+
     //TODO transaction merkle rootlari hesaplanacak
     //TODO private key public key ile sign edilecek
+    @Override
+    public List<SubmitEntity> getRejectedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId) {
+        // THis is just returns the submissions that
+        List<Long> firstRejectedSubmissionIds = finalDecisionRepository.findRejectedSubmissions(category,
+                title,
+                author,
+                department,
+                intuition,
+                keyword,
+                20,
+                DecisionStatus.FirstReview,
+                txId);
+        List<Long> revisionRejectedSubmissionsId = finalDecisionRepository.findRejectedSubmissions(category,
+                title,
+                author,
+                department,
+                intuition,
+                keyword,
+                23,
+                DecisionStatus.RevisionReview,
+                txId);
+
+        return Stream.concat(
+                        firstRejectedSubmissionIds.stream(),
+                        revisionRejectedSubmissionsId.stream())
+                .distinct()
+                .flatMap(id -> submissionRepository.getByTxId(id).stream())
+                .toList();
+    }
+
 
 }
