@@ -13,9 +13,10 @@ import java.util.List;
 @Repository
 public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEntity,Long> {
     @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id IN (                   " +
-            "       SELECT r.referringTxId                                          " +
+            "       SELECT r.manuscriptId                                          " +
             "       FROM FinalDecisionEntity r                                      " +
-            "       GROUP BY r.referringTxId                                        " +
+            "       WHERE r.review_type = :reviewType                          "+
+            "       GROUP BY r.manuscriptId                                        " +
             "       HAVING SUM(r.decisionPoint) >= 25)                              " +
             "AND (:category IS NULL OR t.article.article_resField = :category)      " +
             "AND (:title IS NULL OR t.article.article_title = :title)               " +
@@ -30,6 +31,7 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             @Param("author") String author,
             @Param("department") String department,
             @Param("institution") String institution,
+            @Param("reviewType") DecisionStatus decisionStatus,
             @Param("keyword") String keyword,
             @Param("txId") Long txId
     );
@@ -37,10 +39,10 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
 
 
     @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id IN (               " +
-            "       SELECT r.referringTxId                                      " +
+            "       SELECT r.manuscriptId                                      " +
             "       FROM FinalDecisionEntity r " +
             "       WHERE r.review_type = :reviewType                          "+
-            "       GROUP BY r.referringTxId " +
+            "       GROUP BY r.manuscriptId " +
             "       HAVING SUM(r.decisionPoint) < :requiredPoint ) " +
             "AND (:category IS NULL OR t.article.article_resField = :category) " +
             "AND (:title IS NULL OR t.article.article_title = :title) " +

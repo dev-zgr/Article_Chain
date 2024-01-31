@@ -144,11 +144,15 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId) {
-        List<Long> reviewPendingSubmissionIds = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition, keyword,txId);
-        return reviewPendingSubmissionIds
-                .stream()
+        List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.FirstReview ,keyword,txId);
+        List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId);
+
+        return Stream.concat(
+                        verifiedSubmissionsFirstStep.stream(),
+                        verifiedSubmissionsSecondStep.stream())
+                .distinct()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

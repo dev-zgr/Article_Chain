@@ -42,7 +42,7 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * Fields for storing the type of the review. (First review, revision etc.)
      */
     @Column(name = "review_type")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private DecisionStatus review_type;
 
     /**
@@ -56,7 +56,7 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * @param review_hash
      */
     public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash){
-        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getReferringTxId());
+        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId());
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;

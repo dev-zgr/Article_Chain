@@ -39,8 +39,8 @@ public class ReviewRequestEntity extends TransactionEntity{
     /**
      * Fields for storing the ID of the referring transaction.
      */
-    @Column(name = "referring_tx_id")
-    private long referringTxId;
+    @Column(name = "manuscript_id")
+    private long manuscriptId;
 
     /**
      * Constructor for creating an instance of ReviewRequestEntity with reviewer details and referring transaction ID.
@@ -48,21 +48,21 @@ public class ReviewRequestEntity extends TransactionEntity{
      * @param reviewer_name          The name of the reviewer.
      * @param reviewer_resField      The research field of the reviewer.
      * @param reviewer_email         The email address of the reviewer.
-     * @param referringTxId          The ID of the referring transaction.
+     * @param manuscriptId          The ID of the referring transaction.
      */
-    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long referringTxId) {
+    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long manuscriptId) {
         super();
         this.reviewer_name = reviewer_name;
         this.reviewerResearchField = reviewer_resField;
         this.reviewer_email = reviewer_email;
-        this.referringTxId = referringTxId;
+        this.manuscriptId = manuscriptId;
     }
     /**
      * Default constructor for creating an instance of ReviewRequestEntity with default values.
      */
     public ReviewRequestEntity(){
         this.reviewer_name = this.reviewerResearchField = this.reviewer_email = "";
-        referringTxId = -1;
+        manuscriptId = -1;
     }
 
 }

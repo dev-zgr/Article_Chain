@@ -20,10 +20,10 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
      * @return A list of all review request entities in the database.
      */
     @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id NOT IN (" +
-            "    SELECT r.referringTxId " +
+            "    SELECT r.manuscriptId " +
             "    FROM ReviewRequestEntity r " +
-            "    GROUP BY r.referringTxId " +
-            "    HAVING COUNT(r.referringTxId) >= 3" +
+            "    GROUP BY r.manuscriptId " +
+            "    HAVING COUNT(r.manuscriptId) >= 3" +
             ")" +
             "AND (:category IS NULL OR t.article.article_resField = :category) " +
             "AND (:title IS NULL OR t.article.article_title = :title) " +
@@ -51,7 +51,7 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
      * These transactions refers to currently reviewing submissions.
      * @return A list of all review request entities in the database.
      */
-    @Query("SELECT t.referringTxId FROM ReviewRequestEntity t GROUP BY t.referringTxId HAVING COUNT(t) = 3")
+    @Query("SELECT t.manuscriptId FROM ReviewRequestEntity t GROUP BY t.manuscriptId HAVING COUNT(t) = 3")
     List<Long> findReferringSubmissionIdsWithThreeOccurrences();
 
 }
