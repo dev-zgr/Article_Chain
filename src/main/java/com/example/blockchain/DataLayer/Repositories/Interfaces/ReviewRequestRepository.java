@@ -1,6 +1,7 @@
 package com.example.blockchain.DataLayer.Repositories.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.ReviewRequestEntity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +23,7 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
     @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id NOT IN (" +
             "    SELECT r.manuscriptId " +
             "    FROM ReviewRequestEntity r " +
+            "    WHERE r.acceptanceEnumDTO =  :acceptance" +
             "    GROUP BY r.manuscriptId " +
             "    HAVING COUNT(r.manuscriptId) >= 3" +
             ")" +
@@ -40,8 +42,9 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
             @Param("department") String department,
             @Param("institution") String institution,
             @Param("keyword") String keyword,
-            @Param("txId") Long txId
-    );
+            @Param("txId") Long txId,
+            @Param("acceptance")AcceptanceEnumDTO acceptanceEnumDTO
+            );
 
 
 

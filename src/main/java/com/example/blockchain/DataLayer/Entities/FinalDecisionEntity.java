@@ -1,5 +1,6 @@
 package com.example.blockchain.DataLayer.Entities;
 
+import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -55,8 +56,8 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * @param review_type        The type of the review.
      * @param review_hash
      */
-    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash){
-        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId());
+    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash, AcceptanceEnumDTO acceptanceEnumDTO){
+        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId(),acceptanceEnumDTO);
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;

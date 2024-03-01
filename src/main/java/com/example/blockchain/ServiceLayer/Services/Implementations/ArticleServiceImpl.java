@@ -2,10 +2,7 @@ package com.example.blockchain.ServiceLayer.Services.Implementations;
 
 import com.example.blockchain.DataLayer.Entities.*;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.*;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ArticleEmbeddableDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.*;
 import com.example.blockchain.ServiceLayer.Mappers.SubmissionMapper;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
@@ -100,7 +97,8 @@ public class ArticleServiceImpl implements ArticleService {
                 reviewRequest.reviewerName,
                 reviewRequest.reviewerResearchField,
                 reviewRequest.reviewerEmail,
-                reviewRequest.referringTxId);
+                reviewRequest.referringTxId,
+                reviewRequest.acceptanceStatus);
         return transactionHolder.addPendingTransaction(reviewRequestEntity);
     }
 
@@ -115,24 +113,25 @@ public class ArticleServiceImpl implements ArticleService {
                     finalDecision.decision_file_hash,
                     finalDecision.decisionPoint,
                     finalDecision.review_type,
-                    finalDecision.review_hash
+                    finalDecision.review_hash,
+                    AcceptanceEnumDTO.ACCEPTED
             );
             return transactionHolder.addPendingTransaction(finalDecisionEntity);
         }
     }
 
-    @Override
-    public boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException {
-        ReviewResponseEntity reviewResponseEntity = new ReviewResponseEntity(
-                reviewRequestEntity.reviewResponseLetterHash,
-                reviewRequestEntity.referringSubmissionId
-        );
-        return transactionHolder.addPendingTransaction(reviewResponseEntity);
-    }
+//    @Override
+//    public boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException {
+//        ReviewResponseEntity reviewResponseEntity = new ReviewResponseEntity(
+//                reviewRequestEntity.reviewResponseLetterHash,
+//                reviewRequestEntity.referringSubmissionId
+//        );
+//        return transactionHolder.addPendingTransaction(reviewResponseEntity);
+//    }
 
     @Override
     public List<SubmitEntity> getReviewPendingArticles(String category, String title, String author, String department, String intuition, String keyword, Long tx_id) {
-        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences(category, title, author, department, intuition, keyword,tx_id);
+        List<Long> reviewPendingSubmissionIds = reviewRequestRepository.findReferringSubmissionIdsWithLessThanThreeOccurrences(category, title, author, department, intuition, keyword,tx_id, AcceptanceEnumDTO.ACCEPTED);
         return reviewPendingSubmissionIds
                 .stream()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
@@ -156,21 +155,31 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType) {
         List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.FirstReview ,keyword,txId,articleType);
-        List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId,articleType);
+        //List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId,articleType);
 
-        return Stream.concat(
-                        verifiedSubmissionsFirstStep.stream(),
-                        verifiedSubmissionsSecondStep.stream())
-                .distinct()
-                .flatMap(id -> submissionRepository.getByTxId(id).stream())
-                .map(s -> {
-                    String latestFinalDecisionDate = finalDecisionRepository.findLatestFinalDecisionDateByTxId(s.getTx_id());
-                    LocalDateTime dateTime = LocalDateTime.parse(latestFinalDecisionDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-                    s.getArticle().setArticle_date(formattedDate);
-                    return s;
-                })
-                .toList();
+//        return Stream.concat(
+//                        verifiedSubmissionsFirstStep.stream(),
+//                        verifiedSubmissionsSecondStep.stream())
+//                .distinct()
+//                .flatMap(id -> submissionRepository.getByTxId(id).stream())
+//                .map(s -> {
+//                    String latestFinalDecisionDate = finalDecisionRepository.findLatestFinalDecisionDateByTxId(s.getTx_id());
+//                    LocalDateTime dateTime = LocalDateTime.parse(latestFinalDecisionDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//                    String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+//                    s.getArticle().setArticle_date(formattedDate);
+//                    return s;
+//                })
+//                .toList();
+
+        return verifiedSubmissionsFirstStep.stream().distinct().flatMap(
+                id -> submissionRepository.getByTxId(id).stream()
+        ).map(s -> {
+            String latestFinalDecisionDate = finalDecisionRepository.findLatestFinalDecisionDateByTxId(s.getTx_id());
+            LocalDateTime dateTime = LocalDateTime.parse(latestFinalDecisionDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            s.getArticle().setArticle_date(formattedDate);
+            return s;
+        }).toList();
     }
 
 

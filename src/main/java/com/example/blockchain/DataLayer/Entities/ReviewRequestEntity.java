@@ -1,8 +1,7 @@
 package com.example.blockchain.DataLayer.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,6 +41,10 @@ public class ReviewRequestEntity extends TransactionEntity{
     @Column(name = "manuscript_id")
     private long manuscriptId;
 
+    @Column(name = "Acceptance")
+    @Enumerated(EnumType.STRING)
+    private AcceptanceEnumDTO acceptanceEnumDTO;
+
     /**
      * Constructor for creating an instance of ReviewRequestEntity with reviewer details and referring transaction ID.
      *
@@ -50,12 +53,13 @@ public class ReviewRequestEntity extends TransactionEntity{
      * @param reviewer_email         The email address of the reviewer.
      * @param manuscriptId          The ID of the referring transaction.
      */
-    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long manuscriptId) {
+    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long manuscriptId , AcceptanceEnumDTO acceptanceEnumDTO) {
         super();
         this.reviewer_name = reviewer_name;
         this.reviewerResearchField = reviewer_resField;
         this.reviewer_email = reviewer_email;
         this.manuscriptId = manuscriptId;
+        this.acceptanceEnumDTO = acceptanceEnumDTO;
     }
     /**
      * Default constructor for creating an instance of ReviewRequestEntity with default values.

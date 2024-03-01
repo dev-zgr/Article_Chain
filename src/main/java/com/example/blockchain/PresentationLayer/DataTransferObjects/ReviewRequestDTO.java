@@ -26,6 +26,8 @@ public class ReviewRequestDTO {
      * This is the id of the submission that the review request is referring to.
      */
     public long referringTxId;
+    public AcceptanceEnumDTO acceptanceStatus;
+
 
 
     /**
@@ -35,11 +37,12 @@ public class ReviewRequestDTO {
      * @param reviewerEmail email of the reviewer must be a valid email
      * @param referringTxId id of the submission that the review request is referring to
      */
-    public ReviewRequestDTO(String reviewerName, String reviewerResearchField, String reviewerEmail, long referringTxId) {
+    public ReviewRequestDTO(String reviewerName, String reviewerResearchField, String reviewerEmail, long referringTxId,AcceptanceEnumDTO acceptanceStatus) {
         this.reviewerName = reviewerName;
         this.reviewerResearchField = reviewerResearchField;
         this.reviewerEmail = reviewerEmail;
         this.referringTxId = referringTxId;
+        this.acceptanceStatus = acceptanceStatus;
     }
 
     /**
@@ -48,5 +51,6 @@ public class ReviewRequestDTO {
     public ReviewRequestDTO() {
         this.reviewerName = this.reviewerResearchField = this.reviewerEmail = "";
         referringTxId = -1;
+        acceptanceStatus =null;
     }
 }

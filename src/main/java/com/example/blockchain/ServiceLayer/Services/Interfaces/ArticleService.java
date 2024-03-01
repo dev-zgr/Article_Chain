@@ -52,7 +52,7 @@ public interface ArticleService {
     boolean submitFinalDecision(FinalDecisionEntityDTO finalDecision, long txId) throws NoSuchReviewRequest,IOException;
 
 
-    boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException;
+//    boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException;
 
     /**
      * Returns the currently reviewing articles by following criteria

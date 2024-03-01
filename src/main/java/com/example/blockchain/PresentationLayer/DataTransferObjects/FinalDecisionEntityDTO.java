@@ -30,6 +30,7 @@ public class FinalDecisionEntityDTO {
     public String review_hash;
 
 
+
     /**
      * This constructor is used to create the final decision entity with the decision file hash, decision point and the
      * review request entity.
