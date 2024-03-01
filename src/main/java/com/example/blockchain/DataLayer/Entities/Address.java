@@ -5,6 +5,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * This embeddable class represents the address information associated with an article.
  * It includes details such as country, state, and zip code.
@@ -13,7 +15,7 @@ import lombok.Data;
 @Data
 @Embeddable
 @Table(name = "transaction")
-public class Address {
+public class Address  implements Serializable {
 
     /**
      * Fields for storing the country.

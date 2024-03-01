@@ -1,23 +1,26 @@
 package com.example.blockchain.ServiceLayer.Services.Implementations;
 
 import com.example.blockchain.DataLayer.Entities.*;
-import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
-import com.example.blockchain.DataLayer.Repositories.Interfaces.FinalDecisionRepository;
-import com.example.blockchain.DataLayer.Repositories.Interfaces.ReviewRequestRepository;
-import com.example.blockchain.DataLayer.Repositories.Interfaces.SubmissionRepository;
+import com.example.blockchain.DataLayer.Repositories.Interfaces.*;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ArticleEmbeddableDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
+import com.example.blockchain.ServiceLayer.Mappers.SubmissionMapper;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,10 +35,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
+    private final FileRepository fileRepository;
 
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder, FileRepository fileRepository) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
         this.submissionRepository = submissionRepository;
@@ -43,6 +47,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.reviewRequestRepository = reviewRequestRepository;
         this.finalDecisionRepository = finalDecisionRepository;
         this.transactionHolder = transactionHolder;
+        this.fileRepository = fileRepository;
     }
 
     @Override
@@ -72,12 +77,18 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    public boolean submitPendingSubmission(ArticleEmbeddable articleEmbeddable, String paperHash) throws IOException {
+    public boolean submitPendingSubmission(ArticleEmbeddableDTO articleEmbeddable, MultipartFile multipartFile, String paperHash) throws IOException {
         //create submission entity
         SubmitEntity submitEntity = new SubmitEntity();
-        submitEntity.setArticle(articleEmbeddable);
+        ArticleEmbeddable articleEmbeddable1 = SubmissionMapper.mapDTOToArticleEmbeddable(articleEmbeddable, new ArticleEmbeddable());
+        submitEntity.setArticle(articleEmbeddable1);
+        System.out.println(articleEmbeddable1);
         submitEntity.setPaper_hash(paperHash);
 
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setFileData(multipartFile.getBytes());
+        fileEntity.setFileIdentifier(submitEntity.getArticle().getFileIdentifier());
+        fileRepository.save(fileEntity);
         return transactionHolder.addPendingTransaction(submitEntity);
 
     }
@@ -143,15 +154,22 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     @Override
-    public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId) {
-        List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.FirstReview ,keyword,txId);
-        List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId);
+    public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType) {
+        List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.FirstReview ,keyword,txId,articleType);
+        List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId,articleType);
 
         return Stream.concat(
                         verifiedSubmissionsFirstStep.stream(),
                         verifiedSubmissionsSecondStep.stream())
                 .distinct()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
+                .map(s -> {
+                    String latestFinalDecisionDate = finalDecisionRepository.findLatestFinalDecisionDateByTxId(s.getTx_id());
+                    LocalDateTime dateTime = LocalDateTime.parse(latestFinalDecisionDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                    s.getArticle().setArticle_date(formattedDate);
+                    return s;
+                })
                 .toList();
     }
 
@@ -187,6 +205,5 @@ public class ArticleServiceImpl implements ArticleService {
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
                 .toList();
     }
-
 
 }

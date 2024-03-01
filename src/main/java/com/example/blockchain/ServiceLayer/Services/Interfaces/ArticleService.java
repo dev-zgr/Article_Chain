@@ -2,10 +2,12 @@ package com.example.blockchain.ServiceLayer.Services.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ArticleEmbeddableDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +31,7 @@ public interface ArticleService {
      * @return save status true if saved successfully, false if not
      * @throws IOException if there is an error in file Access
      */
-    boolean submitPendingSubmission(ArticleEmbeddable articleEmbeddable, String paperHash) throws IOException;
+    boolean submitPendingSubmission(ArticleEmbeddableDTO articleEmbeddable, MultipartFile multipartFile, String paperHash) throws IOException;
 
     /**
      * This method is used to add a new Review Request Transaction in pending transactions.
@@ -71,7 +73,7 @@ public interface ArticleService {
      */
     List<SubmitEntity> getCurrentlyReviewingArticles();
 
-    List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId);
+    List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType);
 
     List<SubmitEntity> getRejectedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId);
 }

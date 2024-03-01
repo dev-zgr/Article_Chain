@@ -3,10 +3,13 @@ package com.example.blockchain.PresentationLayer.Controllers;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,6 +18,7 @@ import java.util.List;
  * It handles the HTTP requests and responses for the Submission Transactions.
  */
 @RestController
+@CrossOrigin(origins = "*")
 public class SubmissionController {
 
     /**
@@ -44,14 +48,19 @@ public class SubmissionController {
      * "Submission creation failed due bad data" with HTTP400 returned if client request with bad data.
      * "Submission creation failed" with HTTP500 returned if Internal server error occurs.
      */
-    @PostMapping(path = "/submission", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<String> createSubmission(@RequestBody SubmissionRequestDTO submissionRequestDTO) {
-
+    @PostMapping(path = "/submission" , produces = "application/json")
+    public ResponseEntity<String> createSubmission(@RequestPart("file") MultipartFile file, @RequestPart("jsonBody") @Valid SubmissionRequestDTO submissionRequestDTO,
+                                                   BindingResult bindingResult) {
 
         try {
 
+//            if (bindingResult.hasErrors()) {
+//                return ResponseEntity
+//                        .status(HttpStatus.BAD_REQUEST)
+//                        .body("Validation failed. Please check your request data.");
+//            }
             boolean status = articleService.submitPendingSubmission(
-                    submissionRequestDTO.articleEmbeddable,
+                    submissionRequestDTO.articleEmbeddable,file,
                     submissionRequestDTO.paperHash);
 
             if (status) {
@@ -59,18 +68,16 @@ public class SubmissionController {
                         .status(HttpStatus.CREATED)
                         .header("Content-Type", "application/json")
                         .body("Submission created successfully");
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body("Submission creation failed due bad data");
+            }else{
+                throw new Exception("Submission creation failed");
             }
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Submission creation failed");
         }
     }
-
 
     @GetMapping(path = "/pending-submission", produces = "application/json")
     public ResponseEntity<List<SubmitEntity>> getPendingSubmissions(
@@ -120,18 +127,22 @@ public class SubmissionController {
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
             @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
-            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id) {
+            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id,
+            @RequestParam( name= "article_type", defaultValue = "null", required = false) String article_type
+    ) {
+
 
         try {
             List<SubmitEntity> desiredSubmissions = articleService.getVerifiedSubmissions(
                     handleNullParameter(category),
                     handleNullParameter(title),
                     handleNullParameter(author),
-                    handleNullParameter(department),
-                    handleNullParameter(institution),
-                    handleNullParameter(keyword),
-                    parseString(tx_id)
-            );
+                            handleNullParameter(department),
+                            handleNullParameter(institution),
+                            handleNullParameter(keyword),
+                            parseString(tx_id),
+                            handleNullParameter(article_type)
+                    );
             if (desiredSubmissions.isEmpty()) {
                 return ResponseEntity
                         .status(204)
@@ -194,14 +205,10 @@ public class SubmissionController {
         return parameter;
     }
 
-    private Long parseString(String number) throws Exception{
+    private Long parseString(String number){
         if ("null".equals(number)) {
             return null;
         }
         return Long.parseLong(number);
     }
-
-
-
-
 }

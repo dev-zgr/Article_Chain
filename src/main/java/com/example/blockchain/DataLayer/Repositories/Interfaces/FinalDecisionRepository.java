@@ -20,11 +20,12 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             "       HAVING SUM(r.decisionPoint) >= 25)                              " +
             "AND (:category IS NULL OR t.article.article_resField = :category)      " +
             "AND (:title IS NULL OR t.article.article_title = :title)               " +
-            "AND (:author IS NULL OR t.article.author_name LIKE %:author%)          " +
-            "AND (:department IS NULL OR t.article.department = :department)        " +
-            "AND (:institution IS NULL OR t.article.institution = :institution)     " +
+            "AND (:author IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.author_name LIKE %:author%)) " +
+            "AND (:department IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.department = :department)) " +
+            "AND (:institution IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.institution = :institution)) " +
             "AND (:keyword IS NULL OR t.article.article_keywords LIKE %:keyword%)   " +
-            "AND (:txId IS NULL OR t.tx_id = :txId)                                 ")
+            "AND (:txId IS NULL OR t.tx_id = :txId)                                  " +
+            "AND (:article_type IS NULL OR t.article.article_keywords = :article_type)   ")
     List<Long> findVerifiedSubmissions(
             @Param("category") String category,
             @Param("title") String title,
@@ -33,7 +34,8 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             @Param("institution") String institution,
             @Param("reviewType") DecisionStatus decisionStatus,
             @Param("keyword") String keyword,
-            @Param("txId") Long txId
+            @Param("txId") Long txId,
+            @Param("article_type") String articleType
     );
 
 
@@ -46,9 +48,9 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             "       HAVING SUM(r.decisionPoint) < :requiredPoint ) " +
             "AND (:category IS NULL OR t.article.article_resField = :category) " +
             "AND (:title IS NULL OR t.article.article_title = :title) " +
-            "AND (:author IS NULL OR t.article.author_name LIKE %:author%) " +
-            "AND (:department IS NULL OR t.article.department = :department) " +
-            "AND (:institution IS NULL OR t.article.institution = :institution) " +
+            "AND (:author IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.author_name LIKE %:author%)) " +
+            "AND (:department IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.department = :department)) " +
+            "AND (:institution IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.institution = :institution)) " +
             "AND (:keyword IS NULL OR t.article.article_keywords LIKE %:keyword%) " +
             "AND (:txId IS NULL OR t.tx_id = :txId) ")
     List<Long> findRejectedSubmissions(
@@ -62,4 +64,10 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             @Param("reviewType") DecisionStatus decisionStatus,
             @Param("txId") Long txId
     );
+
+    @Query(
+            "SELECT t.timestamp FROM FinalDecisionEntity t WHERE t.manuscriptId = :tx_id ORDER BY t.timestamp DESC LIMIT 1"
+    )
+    String findLatestFinalDecisionDateByTxId(@Param("tx_id") Long txId);
+
 }

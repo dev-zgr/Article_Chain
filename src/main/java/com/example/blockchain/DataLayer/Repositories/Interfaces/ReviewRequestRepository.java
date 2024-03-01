@@ -27,9 +27,9 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
             ")" +
             "AND (:category IS NULL OR t.article.article_resField = :category) " +
             "AND (:title IS NULL OR t.article.article_title = :title) " +
-            "AND (:author IS NULL OR t.article.author_name LIKE %:author%) " +
-            "AND (:department IS NULL OR t.article.department = :department) " +
-            "AND (:institution IS NULL OR t.article.institution = :institution)" +
+            "AND (:author IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.author_name LIKE %:author%)) " +
+            "AND (:department IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.department = :department)) " +
+            "AND (:institution IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.institution = :institution)) " +
             "AND (:keyword IS NULL OR t.article.article_keywords LIKE %:keyword%) " +
             "AND (:txId IS NULL OR t.tx_id = :txId) "
             )

@@ -99,7 +99,6 @@ public class BlockChainModel {
                     return false;
                 }
                 // TODO Transaction imzasi kontrol edilmeli
-                // TODO public key private key checking
 
                 return true;
 
