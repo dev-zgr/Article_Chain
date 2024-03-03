@@ -161,6 +161,30 @@ public class SubmissionController {
 
     }
 
+    @GetMapping(path = "/get-accepted-review-by-email-submission", produces = "application/json")
+    public ResponseEntity<List<SubmitEntity>> getAcceptedReviewByEmailSubmissions(
+            @RequestParam(name = "email", defaultValue = "test@test.com", required = true) String email
+    ) {
+        try {
+            List<SubmitEntity> desiredSubmissions = articleService.getAcceptedReviewByEmailSubmissions(
+                    handleNullParameter(email)
+            );
+            if (desiredSubmissions.isEmpty()) {
+                return ResponseEntity
+                        .status(204)
+                        .body(null);
+            }
+            return ResponseEntity
+                    .status(200)
+                    .body(desiredSubmissions);
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
     @GetMapping(path = "/rejected-submission", produces = "application/json")
     public ResponseEntity<List<SubmitEntity>> findRejectedSubmissions(
             @RequestParam(name = "category", defaultValue = "null", required = false) String category,

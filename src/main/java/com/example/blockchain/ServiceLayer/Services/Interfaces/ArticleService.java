@@ -76,4 +76,12 @@ public interface ArticleService {
     List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType);
 
     List<SubmitEntity> getRejectedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId);
+
+    /**
+     * This method is used to fetch the submissions that are accepted but not reviewed by the user. So this may be used
+     * to show the user the submissions that are accepted and are pending for review.
+     * @param email The email of the user.
+     * @return List of accepted submissions that are pending for review.
+     */
+    List<SubmitEntity> getAcceptedReviewByEmailSubmissions(String email);
 }

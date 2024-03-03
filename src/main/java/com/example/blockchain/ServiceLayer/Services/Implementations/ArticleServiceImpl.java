@@ -154,7 +154,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType) {
-        List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.FirstReview ,keyword,txId,articleType);
+        List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,20,DecisionStatus.FirstReview ,keyword,txId,articleType);
         //List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId,articleType);
 
 //        return Stream.concat(
@@ -213,6 +213,14 @@ public class ArticleServiceImpl implements ArticleService {
                 .distinct()
                 .flatMap(id -> submissionRepository.getByTxId(id).stream())
                 .toList();
+    }
+
+    @Override
+    public List<SubmitEntity> getAcceptedReviewByEmailSubmissions(String email) {
+        List<Long> pendingSubmissionIds = finalDecisionRepository.findPendingReviewsManuscriptIdByEmail(email, AcceptanceEnumDTO.ACCEPTED);
+        return pendingSubmissionIds.stream().distinct().flatMap(
+                id -> submissionRepository.getByTxId(id).stream()
+        ).toList();
     }
 
 }

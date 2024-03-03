@@ -2,6 +2,7 @@ package com.example.blockchain.DataLayer.Repositories.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.DecisionStatus;
 import com.example.blockchain.DataLayer.Entities.FinalDecisionEntity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             "       FROM FinalDecisionEntity r                                      " +
             "       WHERE r.review_type = :reviewType                          "+
             "       GROUP BY r.manuscriptId                                        " +
-            "       HAVING SUM(r.decisionPoint) >= 25)                              " +
+            "       HAVING SUM(r.decisionPoint) >= :requiredPoint)                              " +
             "AND (:category IS NULL OR t.article.article_resField = :category)      " +
             "AND (:title IS NULL OR t.article.article_title = :title)               " +
             "AND (:author IS NULL OR EXISTS (SELECT a FROM AuthorEntity a WHERE a.author_name LIKE %:author%)) " +
@@ -32,6 +33,7 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             @Param("author") String author,
             @Param("department") String department,
             @Param("institution") String institution,
+            @Param("requiredPoint") int RequiredPoint,
             @Param("reviewType") DecisionStatus decisionStatus,
             @Param("keyword") String keyword,
             @Param("txId") Long txId,
@@ -69,5 +71,19 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             "SELECT t.timestamp FROM FinalDecisionEntity t WHERE t.manuscriptId = :tx_id ORDER BY t.timestamp DESC LIMIT 1"
     )
     String findLatestFinalDecisionDateByTxId(@Param("tx_id") Long txId);
+
+
+    @Query(" SELECT distinct r.manuscriptId                                     " +
+            "FROM ReviewRequestEntity r                                         " +
+            "WHERE r.acceptanceEnumDTO = :acceptance                            " +
+            "   AND r.reviewer_email = :email                                   " +
+            "   AND r.manuscriptId NOT IN (                                     " +
+            "      SELECT DISTINCT f.manuscriptId                               " +
+            "      FROM FinalDecisionEntity f                                   " +
+            "      WHERE f.reviewer_email = :email                              " +
+            ")")
+    List<Long> findPendingReviewsManuscriptIdByEmail(
+            @Param("email") String email,
+            @Param("acceptance")AcceptanceEnumDTO acceptanceEnumDTO);
 
 }
