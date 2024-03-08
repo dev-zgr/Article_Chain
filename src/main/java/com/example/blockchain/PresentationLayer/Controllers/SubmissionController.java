@@ -1,10 +1,12 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewPendingArticleExtendedDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class is the REST Controller for the Submission Transactions.
@@ -76,6 +79,15 @@ public class SubmissionController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Submission creation failed");
+        }
+    }
+
+    @GetMapping(path = "/submission/file")
+    public @ResponseBody Resource getFileByUUID(@RequestParam UUID filenameUUID) {
+        try{
+            return articleService.getFileByUUID(filenameUUID);
+        }catch (Exception e){
+            return null;
         }
     }
 
@@ -162,20 +174,20 @@ public class SubmissionController {
     }
 
     @GetMapping(path = "/get-accepted-review-by-email-submission", produces = "application/json")
-    public ResponseEntity<List<SubmitEntity>> getAcceptedReviewByEmailSubmissions(
+    public ResponseEntity<List<ReviewPendingArticleExtendedDTO>> getAcceptedReviewByEmailSubmissions(
             @RequestParam(name = "email", defaultValue = "test@test.com", required = true) String email
     ) {
         try {
-            List<SubmitEntity> desiredSubmissions = articleService.getAcceptedReviewByEmailSubmissions(
+            List<ReviewPendingArticleExtendedDTO> desiredSubmissions = articleService.getAcceptedReviewByEmailSubmissions(
                     handleNullParameter(email)
             );
             if (desiredSubmissions.isEmpty()) {
                 return ResponseEntity
-                        .status(204)
+                        .status(HttpStatus.NO_CONTENT)
                         .body(null);
             }
             return ResponseEntity
-                    .status(200)
+                    .status(HttpStatus.OK)
                     .body(desiredSubmissions);
 
         } catch (Exception e) {

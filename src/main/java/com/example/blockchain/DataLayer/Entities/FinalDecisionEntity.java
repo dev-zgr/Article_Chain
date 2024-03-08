@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.UUID;
+
 /**
  * This entity is used for representing the final decision made on a review request.
  * It extends the ReviewRequestEntity class and includes additional attributes for the decision.
@@ -29,15 +31,10 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * Fields for storing point of the decision.
      */
     @Column(name = "decision_point")
-    @Min(value = 0, message = "Decision status must be between 0 and 10")
-    @Max(value = 10 , message = "Decision status must be between 0 and 10")
+    @Min(value = -1, message = "Decision status must be between 0 and 10")
+    @Max(value = 11 , message = "Decision status must be between 0 and 10")
     private int decisionPoint;
 
-    /**
-     * Fields for storing the hash of the review.
-     */
-    @Column(name = "review_hash")
-    private String review_hash;
 
     /**
      * Fields for storing the type of the review. (First review, revision etc.)
@@ -45,6 +42,9 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
     @Column(name = "review_type")
     @Enumerated(EnumType.STRING)
     private DecisionStatus review_type;
+
+    @Column(name = "file_identifier_final_decision")
+    private UUID fileIdentifier;
 
     /**
      * Constructor for creating an instance of FinalDecisionEntity with review request details,
@@ -56,12 +56,12 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * @param review_type        The type of the review.
      * @param review_hash
      */
-    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, String review_hash, AcceptanceEnumDTO acceptanceEnumDTO){
+    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, AcceptanceEnumDTO acceptanceEnumDTO,  UUID fileIdentifier){
         super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId(),acceptanceEnumDTO);
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;
-        this.review_hash =review_hash;
+        this.fileIdentifier = fileIdentifier;
     }
 
     /**
@@ -72,6 +72,7 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
         this.decisionPoint = 0;
         this.decision_file_hash = null;
         this.review_type = null;
+        this.fileIdentifier = UUID.randomUUID();
     }
 
 }

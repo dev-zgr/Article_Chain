@@ -36,6 +36,7 @@ public class ArticleEmbeddable {
 
 
 
+    @Column(length = 4096)
     LinkedList<AuthorEntity> authors;
 
 

@@ -2,15 +2,14 @@ package com.example.blockchain.ServiceLayer.Services.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ArticleEmbeddableDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewRequestDTO;
-import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewResponseLetterDTO;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.*;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This interface is used to define the methods that will be used in the SubmissionServiceImplementation class.
@@ -49,7 +48,7 @@ public interface ArticleService {
      * @return save status true if saved successfully, false if not
      * @throws NoSuchReviewRequest if there is an error in file Access
      */
-    boolean submitFinalDecision(FinalDecisionEntityDTO finalDecision, long txId) throws NoSuchReviewRequest,IOException;
+    boolean submitFinalDecision(FinalDecisionEntityDTO finalDecisionEntity,MultipartFile multiPartFile,long txId) throws NoSuchReviewRequest,IOException;
 
 
 //    boolean submitPendingReviewResponse(ReviewResponseLetterDTO reviewRequestEntity) throws IOException;
@@ -83,5 +82,14 @@ public interface ArticleService {
      * @param email The email of the user.
      * @return List of accepted submissions that are pending for review.
      */
-    List<SubmitEntity> getAcceptedReviewByEmailSubmissions(String email);
+    List<ReviewPendingArticleExtendedDTO> getAcceptedReviewByEmailSubmissions(String email);
+
+
+    /**
+     * This method is used to fetch the submissions that are rejected but not reviewed by the user. So this may be used
+     * To show the user the submissions that are rejected and are pending for review.
+     * @param filenameUUID UUID of the file that'll be retrieved
+     * @return Resource of the file
+     */
+    Resource getFileByUUID(UUID filenameUUID);
 }

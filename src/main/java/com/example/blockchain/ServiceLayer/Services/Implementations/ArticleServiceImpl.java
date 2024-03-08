@@ -9,6 +9,8 @@ import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -103,7 +105,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public boolean submitFinalDecision(FinalDecisionEntityDTO finalDecision, long txId) throws NoSuchReviewRequest, IOException {
+    public boolean submitFinalDecision(FinalDecisionEntityDTO finalDecision,MultipartFile multipartFile ,long txId) throws NoSuchReviewRequest, IOException {
         Optional<ReviewRequestEntity> referringReviewRequest = reviewRequestRepository.findById(txId);
         if (referringReviewRequest.isEmpty()) {
             throw new NoSuchReviewRequest("There is no such review request");
@@ -113,9 +115,14 @@ public class ArticleServiceImpl implements ArticleService {
                     finalDecision.decision_file_hash,
                     finalDecision.decisionPoint,
                     finalDecision.review_type,
-                    finalDecision.review_hash,
-                    AcceptanceEnumDTO.ACCEPTED
+                    AcceptanceEnumDTO.ACCEPTED,
+                    finalDecision.getFileIdentifier()
             );
+
+            FileEntity fileEntity = new FileEntity();
+            fileEntity.setFileData(multipartFile.getBytes());
+            fileEntity.setFileIdentifier(finalDecisionEntity.getFileIdentifier());
+            fileRepository.save(fileEntity);
             return transactionHolder.addPendingTransaction(finalDecisionEntity);
         }
     }
@@ -216,11 +223,25 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<SubmitEntity> getAcceptedReviewByEmailSubmissions(String email) {
-        List<Long> pendingSubmissionIds = finalDecisionRepository.findPendingReviewsManuscriptIdByEmail(email, AcceptanceEnumDTO.ACCEPTED);
-        return pendingSubmissionIds.stream().distinct().flatMap(
-                id -> submissionRepository.getByTxId(id).stream()
-        ).toList();
+    public List<ReviewPendingArticleExtendedDTO> getAcceptedReviewByEmailSubmissions(String email) {
+        List<ReviewRequestEntity> pendingSubmissionIds = finalDecisionRepository.findPendingReviewsByEmail(email, AcceptanceEnumDTO.ACCEPTED);
+        return pendingSubmissionIds.stream()
+                .distinct()
+                .flatMap(reviewRequest -> {
+                    SubmitEntity submitEntity = submissionRepository.getByTxId(reviewRequest.getManuscriptId()).get(0);
+                    return Stream.of(new ReviewPendingArticleExtendedDTO(
+                            SubmissionMapper.mapArticleEmbeddableToDTO(submitEntity.getArticle()),
+                            submitEntity.getPaper_hash(),
+                            reviewRequest.getTx_id()
+                    ));
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Resource getFileByUUID(UUID filenameUUID) {
+        FileEntity file = fileRepository.findByFileIdentifier(filenameUUID).orElseThrow();
+        return new ByteArrayResource(file.getFileData());
     }
 
 }

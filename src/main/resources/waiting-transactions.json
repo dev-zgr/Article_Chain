@@ -1,17 +1,1 @@
-[ "java.util.LinkedList", [ [ "com.example.blockchain.DataLayer.Entities.ReviewRequestEntity", {
-  "tx_id" : 0,
-  "timestamp" : "2024-03-02 13:43:47",
-  "reviewer_name" : "John Doe",
-  "reviewerResearchField" : "Computer Science",
-  "reviewer_email" : "john.doe@example.com",
-  "manuscriptId" : 13,
-  "acceptanceEnumDTO" : "ACCEPTED"
-} ], [ "com.example.blockchain.DataLayer.Entities.ReviewRequestEntity", {
-  "tx_id" : 0,
-  "timestamp" : "2024-03-02 13:44:07",
-  "reviewer_name" : "John Doe",
-  "reviewerResearchField" : "Computer Science",
-  "reviewer_email" : "john.doe@example.com",
-  "manuscriptId" : 13,
-  "acceptanceEnumDTO" : "REJECTED"
-} ] ] ]
+[ "java.util.LinkedList", [ ] ]

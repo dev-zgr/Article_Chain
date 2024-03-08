@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * This class is responsible for holding the final decision of the article.
  * It's a Data Transfer Object for the Final Decision Entity. this means that it's used to transfer data between the
@@ -21,13 +23,15 @@ public class FinalDecisionEntityDTO {
     /**
      * This is the decision point of the final decision.
      */
-    @Max(value = 10, message = "Decision point must  be between 0 and 10")
-    @Min(value = 0, message = "Decision point must be between 0 and 10")
+    @Max(value = 11, message = "Decision point must  be between 0 and 10")
+    @Min(value = -1, message = "Decision point must be between 0 and 10")
     public int decisionPoint;
 
     public DecisionStatus review_type;
 
     public String review_hash;
+    private UUID fileIdentifier;
+
 
 
 
@@ -44,6 +48,8 @@ public class FinalDecisionEntityDTO {
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;
         this.review_hash = review_hash;
+        this.fileIdentifier = UUID.randomUUID();
+
     }
 
     /**
@@ -54,6 +60,8 @@ public class FinalDecisionEntityDTO {
         this.decisionPoint = -1;
         this.review_type = null;
         this.review_hash = "";
+        this.fileIdentifier = UUID.randomUUID();
+
     }
 
 

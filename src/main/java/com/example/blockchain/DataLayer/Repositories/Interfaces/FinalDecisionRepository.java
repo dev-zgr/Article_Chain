@@ -2,6 +2,7 @@ package com.example.blockchain.DataLayer.Repositories.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.DecisionStatus;
 import com.example.blockchain.DataLayer.Entities.FinalDecisionEntity;
+import com.example.blockchain.DataLayer.Entities.ReviewRequestEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -83,6 +84,21 @@ public interface FinalDecisionRepository extends JpaRepository<FinalDecisionEnti
             "      WHERE f.reviewer_email = :email                              " +
             ")")
     List<Long> findPendingReviewsManuscriptIdByEmail(
+            @Param("email") String email,
+            @Param("acceptance")AcceptanceEnumDTO acceptanceEnumDTO);
+
+
+
+    @Query(" SELECT distinct r                                  " +
+            "FROM ReviewRequestEntity r                                         " +
+            "WHERE r.acceptanceEnumDTO = :acceptance                            " +
+            "   AND r.reviewer_email = :email                                   " +
+            "   AND r.manuscriptId NOT IN (                                     " +
+            "      SELECT DISTINCT f.manuscriptId                               " +
+            "      FROM FinalDecisionEntity f                                   " +
+            "      WHERE f.reviewer_email = :email                              " +
+            ")")
+    List<ReviewRequestEntity> findPendingReviewsByEmail(
             @Param("email") String email,
             @Param("acceptance")AcceptanceEnumDTO acceptanceEnumDTO);
 

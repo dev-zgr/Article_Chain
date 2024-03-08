@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * This entity is used for representing a submission in the blockchain.
  * It extends the TransactionEntity class and includes attributes specific to a submission.
@@ -23,6 +25,7 @@ public class SubmitEntity extends TransactionEntity {
      */
     @Column(name = "paper_hash")
     private String paper_hash;
+
 
     /**
      * Constructor for creating an instance of SubmitEntity with paper hash and article details.

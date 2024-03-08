@@ -3,10 +3,12 @@ package com.example.blockchain.PresentationLayer.Controllers;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.FinalDecisionEntityDTO;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
  * it handles the HTTP requests and responses for the Final Decision.
  */
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class FinalDecisionController {
 
 
@@ -43,11 +46,13 @@ public class FinalDecisionController {
      * "Submission creation due bad data" with HTTP400 returned if client request with bad data.
      * "Submission creation failed" with HTTP500 returned if Internal server error occurs.
      */
-    @PostMapping(path = "/final-decision", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<String> createSubmission(@RequestParam(name = "tx_id") long txId , @RequestBody FinalDecisionEntityDTO finalDecisionEntityDTO) {
+    @PostMapping(path = "/final-decision", produces = "application/json")
+    public ResponseEntity<String> createSubmission(@RequestParam(name = "tx_id") long txId ,
+                                                   @RequestPart("file") MultipartFile file,
+                                                   @RequestPart("jsonBody") @Valid FinalDecisionEntityDTO finalDecisionEntityDTO) {
 
         try {
-            boolean status = articleService.submitFinalDecision(finalDecisionEntityDTO,txId);
+            boolean status = articleService.submitFinalDecision(finalDecisionEntityDTO, file,txId);
             if(status){
                 return ResponseEntity
                         .status(200)
