@@ -1,6 +1,7 @@
 package com.example.blockchain.ServiceLayer.Services.Interfaces;
 
 import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
+import com.example.blockchain.DataLayer.Entities.FileEntity;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.*;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
@@ -91,5 +92,5 @@ public interface ArticleService {
      * @param filenameUUID UUID of the file that'll be retrieved
      * @return Resource of the file
      */
-    Resource getFileByUUID(UUID filenameUUID);
+    byte[] getFileByUUID(UUID filenameUUID);
 }

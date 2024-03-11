@@ -1,5 +1,6 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
+import com.example.blockchain.DataLayer.Entities.FileEntity;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewPendingArticleExtendedDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
@@ -7,7 +8,9 @@ import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -82,14 +85,6 @@ public class SubmissionController {
         }
     }
 
-    @GetMapping(path = "/submission/file")
-    public @ResponseBody Resource getFileByUUID(@RequestParam UUID filenameUUID) {
-        try{
-            return articleService.getFileByUUID(filenameUUID);
-        }catch (Exception e){
-            return null;
-        }
-    }
 
     @GetMapping(path = "/pending-submission", produces = "application/json")
     public ResponseEntity<List<SubmitEntity>> getPendingSubmissions(
@@ -227,6 +222,29 @@ public class SubmissionController {
                     .body(desiredSubmissions);
 
         } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+    @GetMapping(path = "/file")
+    public ResponseEntity<byte[]> getFileByUUID(@RequestParam(name = "uuid") UUID uuid){
+        try {
+            byte[] file = articleService.getFileByUUID(uuid);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "filename.pdf");
+            if(file == null){
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .body(null);
+            }else {
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(file);
+            }
+        } catch (Exception e){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);

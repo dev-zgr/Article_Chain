@@ -9,11 +9,16 @@ import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,11 +39,16 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
-    private final FileRepository fileRepository;
+
+    @Value("${node.addressingSystem.ip}")
+    private String nrsIpAddress;
+
+    @Value("${node.addressingSystem.port}")
+    private String nrsPort;
 
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder, FileRepository fileRepository) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
         this.submissionRepository = submissionRepository;
@@ -46,7 +56,6 @@ public class ArticleServiceImpl implements ArticleService {
         this.reviewRequestRepository = reviewRequestRepository;
         this.finalDecisionRepository = finalDecisionRepository;
         this.transactionHolder = transactionHolder;
-        this.fileRepository = fileRepository;
     }
 
     @Override
@@ -87,7 +96,10 @@ public class ArticleServiceImpl implements ArticleService {
         FileEntity fileEntity = new FileEntity();
         fileEntity.setFileData(multipartFile.getBytes());
         fileEntity.setFileIdentifier(submitEntity.getArticle().getFileIdentifier());
-        fileRepository.save(fileEntity);
+        boolean filePosted =  postFile(fileEntity);
+        if(!filePosted){
+            return  false;
+        }
         return transactionHolder.addPendingTransaction(submitEntity);
 
     }
@@ -122,7 +134,10 @@ public class ArticleServiceImpl implements ArticleService {
             FileEntity fileEntity = new FileEntity();
             fileEntity.setFileData(multipartFile.getBytes());
             fileEntity.setFileIdentifier(finalDecisionEntity.getFileIdentifier());
-            fileRepository.save(fileEntity);
+            boolean filePosted =  postFile(fileEntity);
+            if(!filePosted){
+                return  false;
+            }
             return transactionHolder.addPendingTransaction(finalDecisionEntity);
         }
     }
@@ -239,9 +254,26 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Resource getFileByUUID(UUID filenameUUID) {
-        FileEntity file = fileRepository.findByFileIdentifier(filenameUUID).orElseThrow();
-        return new ByteArrayResource(file.getFileData());
+    public byte[] getFileByUUID(UUID filenameUUID) {
+        String baseUrl = "http://" + nrsIpAddress + ":" + nrsPort + "/file?uuid=" + filenameUUID;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<byte[]> response = restTemplate.getForEntity(baseUrl, byte[].class);
+        return response.getBody();
+
+
     }
 
+    private boolean postFile(FileEntity file){
+
+        String baseUrl = "http://" + nrsIpAddress + ":" + nrsPort + "/file";
+        RestTemplate restTemplate = new RestTemplate();
+
+        try{
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity(baseUrl, file, String.class);
+            return responseEntity.getStatusCode().is2xxSuccessful();
+
+        }catch (Exception e){
+            return false;
+        }
+    }
 }

@@ -17,10 +17,13 @@ public class UserAccountDTO {
 
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$", message = "Password must be 8-16 characters long and include at least one letter and one digit.")
     private String password;
+    private String researchField;
 
-    public UserAccountDTO(String name, String email, String password) {
+
+    public UserAccountDTO(String name, String email, String password,String researchField) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.researchField = researchField;
     }
 }

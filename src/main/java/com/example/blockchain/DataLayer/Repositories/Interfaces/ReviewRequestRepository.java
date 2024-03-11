@@ -20,7 +20,7 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequestEnti
      * TX ID's of these submissions refers to review pending submissions in the Article Chain.
      * @return A list of all review request entities in the database.
      */
-    @Query("SELECT t.tx_id FROM SubmitEntity t WHERE t.tx_id NOT IN (" +
+    @Query("SELECT distinct t.tx_id FROM SubmitEntity t WHERE t.tx_id NOT IN (" +
             "    SELECT r.manuscriptId " +
             "    FROM ReviewRequestEntity r " +
             "    WHERE r.acceptanceEnumDTO =  :acceptance" +
