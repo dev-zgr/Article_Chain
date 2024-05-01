@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 /**
  * This class is responsible for holding the Review Request for the  articles.
  * It's a Data Transfer Object for the ReviewRequest Entity. this means that it's used to transfer data between the
- * HTTP Request and the Service Layer. it's wraps reviewers name , reviewers research field , review e-mail and referring submission id.
+ * HTTP Request and the Service Layer. It wraps reviewers name , reviewers research field , review e-mail and referring submission id.
  */
 public class ReviewRequestDTO {
     /**
@@ -26,9 +26,8 @@ public class ReviewRequestDTO {
      * This is the id of the submission that the review request is referring to.
      */
     public long referringTxId;
+
     public AcceptanceEnumDTO acceptanceStatus;
-
-
 
     /**
      * This constructor is used to create the review request entity with the reviewer name, reviewer research field,

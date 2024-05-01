@@ -46,7 +46,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Value("${node.addressingSystem.port}")
     private String nrsPort;
 
-
     @Autowired
     public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder) {
         this.blockRepository = blockRepository;

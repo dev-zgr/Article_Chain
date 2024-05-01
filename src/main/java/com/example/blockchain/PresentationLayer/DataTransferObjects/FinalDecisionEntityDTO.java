@@ -30,10 +30,8 @@ public class FinalDecisionEntityDTO {
     public DecisionStatus review_type;
 
     public String review_hash;
+
     private UUID fileIdentifier;
-
-
-
 
     /**
      * This constructor is used to create the final decision entity with the decision file hash, decision point and the
@@ -63,6 +61,4 @@ public class FinalDecisionEntityDTO {
         this.fileIdentifier = UUID.randomUUID();
 
     }
-
-
 }

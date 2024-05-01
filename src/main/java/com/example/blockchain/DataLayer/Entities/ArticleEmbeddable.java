@@ -22,10 +22,6 @@ import java.util.UUID;
 @Table(name = "transaction")
 public class ArticleEmbeddable {
 
-
-
-
-
     private String article_title;
     private String article_type;
     private String article_resField;
@@ -34,11 +30,8 @@ public class ArticleEmbeddable {
     private String paperAbstract;
     private UUID fileIdentifier;
 
-
-
     @Column(length = 4096)
     LinkedList<AuthorEntity> authors;
-
 
     /**
      * Constructor for creating an instance of ArticleEmbeddable with all attributes.
@@ -61,7 +54,6 @@ public class ArticleEmbeddable {
         this.paperAbstract = paperAbstract;
         this.fileIdentifier = fileIdentifier;
         this.authors = authors;
-
     }
 
     /**
@@ -72,6 +64,4 @@ public class ArticleEmbeddable {
         this.fileIdentifier = UUID.randomUUID();
         this.authors = new LinkedList<>();
     }
-
-
 }

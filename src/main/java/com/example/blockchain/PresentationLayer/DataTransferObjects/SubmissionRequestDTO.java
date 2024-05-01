@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 /**
  * This class is responsible for holding Submission requests.
  * It's a Data Transfer Object for the Submission request. this means that it's used to transfer data between the
- * HTTP Request and the Service Layer. it's wraps articleEmbeddable and paper hash.
+ * HTTP Request and the Service Layer. It wraps articleEmbeddable and paper hash.
  */
 @Validated
 @Data

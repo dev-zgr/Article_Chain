@@ -44,8 +44,6 @@ public class ReviewRequestController {
      */
     @PostMapping(path = "/review-request", consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> createSubmission(@RequestBody ReviewRequestDTO reviewRequest) {
-
-
         try {
 
             boolean status = articleService.submitPendingReviewRequest(reviewRequest);
@@ -66,5 +64,4 @@ public class ReviewRequestController {
                     .body("Review Request creation failed due server error");
         }
     }
-
 }

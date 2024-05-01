@@ -51,7 +51,6 @@ public class TransactionEntity {
      * Default constructor for creating an instance of TransactionEntity with default values.
      */
     public TransactionEntity() {
-
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.timestamp = now.format(formatter);

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.net.URL;
 import java.io.IOException;
 import java.util.*;
 
@@ -43,9 +44,19 @@ public class TransactionHolder {
      * This constructor initializes the object writer and the file that'll be used to store the transactions
      */
     public TransactionHolder(){
+        ClassLoader classLoader = TransactionHolder.class.getClassLoader();
 
+        URL resourcePath = classLoader.getResource("waiting-transactions.json");
+        String transactionPath = null;
 
-        this.resourceFile = new File("/Users/ozgurkamali/Desktop/BlockChainLast/src/main/resources/waiting-transactions.json");
+        if (resourcePath != null) {
+            transactionPath = new File(resourcePath.getFile()).getAbsolutePath();
+            //System.out.println("File path: " + transactionPath);
+        } else {
+            System.out.println("Resource not found.");
+        }
+
+        this.resourceFile = new File(transactionPath);
 
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.example.blockchain.DataLayer.Entities")
@@ -102,7 +113,7 @@ public class TransactionHolder {
             objectWriter.writeValue(resourceFile, waitingTransactions);
 
         }
-            return transactionsToProcess;
+        return transactionsToProcess;
     }
 
 

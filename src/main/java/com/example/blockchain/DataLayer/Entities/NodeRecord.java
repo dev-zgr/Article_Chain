@@ -16,7 +16,6 @@ public class NodeRecord {
      */
     private UUID uuid;
 
-
     /**
      * Fields for storing the IP address of the node.
      */
@@ -28,16 +27,23 @@ public class NodeRecord {
     boolean isActive;
 
     /**
+     * Fields for storing the public key of the node.
+     */
+    private byte[] publicKey;
+
+    /**
      * Constructor for creating an instance of NodeRecord with a specified UUID, IP address, and activity status.
      *
      * @param uuid      The UUID of the node.
      * @param ipAddress The IP address of the node.
      * @param isActive  The activity status of the node.
+     * @param publicKey The public key of the node
      */
-    public NodeRecord(UUID uuid, String ipAddress, boolean isActive){
+    public NodeRecord(UUID uuid, String ipAddress, boolean isActive, byte[] publicKey){
         this.ipAddress = ipAddress;
         this.uuid = uuid;
         this.isActive = isActive;
+        this.publicKey = publicKey;
     }
 
     /**
@@ -45,8 +51,9 @@ public class NodeRecord {
      */
     public NodeRecord(){
         this.uuid = null;
-        this.ipAddress =null;
+        this.ipAddress = null;
         this.isActive = false;
+        this.publicKey = null;
     }
 }
 

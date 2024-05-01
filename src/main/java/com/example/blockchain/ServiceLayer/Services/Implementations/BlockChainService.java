@@ -5,10 +5,7 @@ import com.example.blockchain.DataLayer.Entities.NodeRecord;
 import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.TransactionRepository;
-import com.example.blockchain.ServiceLayer.Models.NodeAdressingSystemModel;
-import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
-import com.example.blockchain.ServiceLayer.Models.NodeModel;
-import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
+import com.example.blockchain.ServiceLayer.Models.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +52,10 @@ public class BlockChainService {
      */
     private final NodeModel nodeModel;
 
+    /**
+     * This is the digital signature key manager of the current node
+     */
+    private final KeyHolder keyHolder;
 
     /**
      * This constructor initializes the block repository, transaction holder, blockchain model, transaction repository, node addressing system model and node model
@@ -66,14 +67,14 @@ public class BlockChainService {
      * @param nodeModel This is the node model that'll be used to get the node's information
      */
     @Autowired
-    public BlockChainService(BlockRepository blockRepository, TransactionHolder transactionHolder, BlockChainModel blockChainModel, TransactionRepository transactionRepository, NodeAdressingSystemModel nodeAdressingSystemModel, NodeModel nodeModel) {
+    public BlockChainService(BlockRepository blockRepository, TransactionHolder transactionHolder, BlockChainModel blockChainModel, TransactionRepository transactionRepository, NodeAdressingSystemModel nodeAdressingSystemModel, NodeModel nodeModel, KeyHolder keyHolder) {
         this.blockRepository = blockRepository;
         this.transactionHolder = transactionHolder;
         this.blockChainModel = blockChainModel;
         this.transactionRepository = transactionRepository;
         this.nodeAdressingSystemModel = nodeAdressingSystemModel;
         this.nodeModel = nodeModel;
-
+        this.keyHolder = keyHolder;
     }
 
 
@@ -86,17 +87,18 @@ public class BlockChainService {
      */
     @PostConstruct
     public void init() {
-        //first register to node recording System
-        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAddress(), true);
+        // Load the digital signature keys of the current node
+        keyHolder.loadKeys("12345678", "MyKeyPair", "my_keypair.jks");
+
+        // First register to node recording System
+        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAddress(), true, keyHolder.getPublicKey());
         nodeAdressingSystemModel.postNodeRecord("/node-service/register-nodes", nodeRecord);
         List<NodeRecord> allNodes = nodeAdressingSystemModel.getAllNodes("/node-service/get-nodes");
         assert allNodes != null;
         List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
 
-
         if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
             blockRepository.persistBlock(new BlockEntity(1, "000", new LinkedList<TransactionEntity>()));
-
         } else {
             replicateChain(activeNodes);
         }
@@ -109,8 +111,8 @@ public class BlockChainService {
      */
     @PreDestroy
     public void finilize() {
-        //first register to node recording System
-        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAddress(), false);
+        // First register to node recording System
+        NodeRecord nodeRecord = new NodeRecord(nodeModel.getUuid(), nodeModel.getFinalIpAddress(), false, keyHolder.getPublicKey());
         nodeAdressingSystemModel.postNodeRecord("/node-service/register-nodes", nodeRecord);
 
     }

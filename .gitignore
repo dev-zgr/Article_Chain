@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Digital Signature ###
+my_keypair.jks
+my_certificate.cer

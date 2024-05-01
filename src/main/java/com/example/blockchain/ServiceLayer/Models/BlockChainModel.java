@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * This class if responsible for managing the blockchain model
+ * This class is responsible for managing the blockchain model
  * It handles block adding logic and block validation logic
  */
 @Component
@@ -33,7 +33,6 @@ public class BlockChainModel {
     /**
      * Maximum number of transactions per block
      */
-
     @Value("${blockchain.maxTransactionsPerBlock:10}")
     private int maxTransactionsPerBlock;
 

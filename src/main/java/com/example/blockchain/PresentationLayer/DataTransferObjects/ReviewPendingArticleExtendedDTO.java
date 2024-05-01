@@ -14,5 +14,4 @@ public class ReviewPendingArticleExtendedDTO extends SubmissionRequestDTO{
         super(articleEmbeddable, paperHash);
         this.referringReviewTXID = referringReviewTXID;
     }
-
 }

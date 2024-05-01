@@ -17,7 +17,6 @@ import java.util.List;
 @Data
 @Component
 public class NodeAdressingSystemModel {
-
     /**
      * This field used to represent the current node's address.
      */
@@ -31,7 +30,7 @@ public class NodeAdressingSystemModel {
     private String nodePort;
 
     /**
-     * This constructor used to create a NodeAdressingSystemModel with the nodeAddress and nodePort.
+     * This constructor used to create a NodeAddressingSystemModel with the nodeAddress and nodePort.
      * @param nodeAddress current node's address
      * @param nodePort current node's port
      */
@@ -71,7 +70,6 @@ public class NodeAdressingSystemModel {
         RestTemplate restTemplate = new RestTemplate();
         try {
             restTemplate.postForObject(getAddress() + directory, nodeRecord, NodeRecord.class);
-
         } catch (Exception e) {
         }
     }
@@ -83,7 +81,7 @@ public class NodeAdressingSystemModel {
      */
     public List<NodeRecord> getAllNodes(String directory) {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange(  getAddress()+"/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
+        ResponseEntity<List<NodeRecord>> response = restTemplate.exchange(getAddress()+"/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
         });
         return response.getBody();
     }

@@ -161,13 +161,11 @@ public class BlockEntity {
     public String calculateMerkleRoot(){
         List<String> transactionHashes = new ArrayList<>();
 
-        if(transactionHashes.size() == 0){
-            return "000000000000";
-        }else{
-            for (TransactionEntity transaction : transactionList) {
-                transactionHashes.add(transaction.calculateTransactionHash());
-            }
+        for (TransactionEntity transaction : transactionList) {
+            transactionHashes.add(transaction.calculateTransactionHash());
+        }
 
+        if(!transactionHashes.isEmpty()){
             while (transactionHashes.size() > 1) {
                 List<String> newHashes = new ArrayList<>();
 
@@ -175,6 +173,8 @@ public class BlockEntity {
                     String combinedHash = transactionHashes.get(i);
                     if (i + 1 < transactionHashes.size()) {
                         combinedHash += transactionHashes.get(i + 1);
+                    } else {
+                        combinedHash += transactionHashes.get(i);
                     }
 
                     try {
@@ -199,8 +199,25 @@ public class BlockEntity {
             }
 
             return transactionHashes.get(0);
-        }
+        }else{
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hashBytes = digest.digest(this.transactionList.toString().getBytes());
 
+                StringBuilder hexString = new StringBuilder();
+                for (byte hashByte : hashBytes) {
+                    String hex = Integer.toHexString(0xff & hashByte);
+                    if (hex.length() == 1)
+                        hexString.append('0');
+                    hexString.append(hex);
+                }
+
+                return hexString.toString();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     }
 
     /**

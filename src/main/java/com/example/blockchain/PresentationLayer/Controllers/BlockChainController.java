@@ -24,7 +24,7 @@ public class BlockChainController {
     /**
      * This constructor is used to create the BlockChainController with the BlockChainService.
      *
-     * @param blockChainService BlockChainService that this controller uses to handle businnes logic of the HTTP requests
+     * @param blockChainService BlockChainService that this controller uses to handle business logic of the HTTP requests
      */
     @Autowired
     public BlockChainController(BlockChainService blockChainService) {
@@ -51,7 +51,7 @@ public class BlockChainController {
     }
 
     /**
-     * This method is used to the blocks by id in the BlockChain.
+     * This method is used to find the blocks by id in the BlockChain.
      * it handles the HTTP GET request for the /block endpoint and produces a JSON response.
      *
      * @param id id of the block that is requested
@@ -70,9 +70,8 @@ public class BlockChainController {
 
     }
 
-
     /**
-     * This method is used for keep blockchain updated for latest blocks in the BlockChain.
+     * This method is used for keeping blockchain updated for latest blocks in the BlockChain.
      * Once another nodes mines a new block it sends (POSTs) this new block to every other node in
      * The blockchain.
      * it handles the HTTP POST request for the /block endpoint and consumes/produces a JSON response.

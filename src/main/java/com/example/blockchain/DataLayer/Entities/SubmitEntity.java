@@ -57,5 +57,4 @@ public class SubmitEntity extends TransactionEntity {
         this.article = article;
         this.paper_hash = paper_hash;
     }
-
 }

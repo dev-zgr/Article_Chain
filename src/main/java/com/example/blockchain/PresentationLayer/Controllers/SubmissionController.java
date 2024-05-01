@@ -94,7 +94,7 @@ public class SubmissionController {
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
             @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
-            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id)
+            @RequestParam(name = "tx_id", defaultValue = "null", required = false) String tx_id)
             {
 
         try {
@@ -134,8 +134,8 @@ public class SubmissionController {
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
             @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
-            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id,
-            @RequestParam( name= "article_type", defaultValue = "null", required = false) String article_type
+            @RequestParam(name = "tx_id", defaultValue = "null", required = false) String tx_id,
+            @RequestParam(name = "article_type", defaultValue = "null", required = false) String article_type
     ) {
 
 
@@ -200,7 +200,7 @@ public class SubmissionController {
             @RequestParam(name = "department", defaultValue = "null", required = false) String department,
             @RequestParam(name = "institution", defaultValue = "null", required = false) String institution,
             @RequestParam(name = "keyword", defaultValue = "null", required = false) String keyword,
-            @RequestParam( name= "tx_id", defaultValue = "null", required = false) String tx_id)
+            @RequestParam(name = "tx_id", defaultValue = "null", required = false) String tx_id)
     {
         try {
             List<SubmitEntity> desiredSubmissions = articleService.getRejectedSubmissions(

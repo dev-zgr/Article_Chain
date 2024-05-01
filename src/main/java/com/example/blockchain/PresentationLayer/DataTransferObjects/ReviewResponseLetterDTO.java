@@ -3,13 +3,14 @@ package com.example.blockchain.PresentationLayer.DataTransferObjects;
 /**
  * This class is responsible for holding the Review Response Letter of the article.
  * It's a Data Transfer Object for the Review Response Letter. this means that it's used to transfer data between the
- * HTTP Request and the Service Layer. it's wraps review response Letter hash and referring submission id.
+ * HTTP Request and the Service Layer. It wraps review response Letter hash and referring submission id.
  */
 public class ReviewResponseLetterDTO {
     /**
      * This is the hash of the review response letter.
      */
     public String reviewResponseLetterHash;
+
     /**
      * This is the id of the submission that the review response letter is referring to.
      */

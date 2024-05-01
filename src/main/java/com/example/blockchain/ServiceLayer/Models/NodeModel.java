@@ -58,6 +58,6 @@ public class NodeModel {
      * @return Node's final IP address.
      */
     public String getFinalIpAddress(){
-        return "https://"+nodeAddress + ":" + nodePort;
+        return "https://" + nodeAddress + ":" + nodePort;
     }
 }
