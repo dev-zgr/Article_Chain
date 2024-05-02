@@ -44,19 +44,9 @@ public class TransactionHolder {
      * This constructor initializes the object writer and the file that'll be used to store the transactions
      */
     public TransactionHolder(){
-        ClassLoader classLoader = TransactionHolder.class.getClassLoader();
+        String rootPath = System.getProperty("user.dir");
 
-        URL resourcePath = classLoader.getResource("waiting-transactions.json");
-        String transactionPath = null;
-
-        if (resourcePath != null) {
-            transactionPath = new File(resourcePath.getFile()).getAbsolutePath();
-            //System.out.println("File path: " + transactionPath);
-        } else {
-            System.out.println("Resource not found.");
-        }
-
-        this.resourceFile = new File(transactionPath);
+        this.resourceFile = new File(rootPath + "\\src\\main\\resources\\waiting-transactions.json");
 
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.example.blockchain.DataLayer.Entities")
@@ -84,7 +74,6 @@ public class TransactionHolder {
      * @Return true if the transaction is added to queue successfully
      */
     public boolean addPendingTransaction(TransactionEntity pendingTransaction) throws JsonProcessingException, IOException {
-
         boolean add = waitingTransactions.add(pendingTransaction);
         objectWriter.writeValue(resourceFile, waitingTransactions);
         return add;
@@ -115,9 +104,6 @@ public class TransactionHolder {
         }
         return transactionsToProcess;
     }
-
-
-
 }
 
 
