@@ -36,7 +36,6 @@ public class ArticleServiceImpl implements ArticleService {
     private final SubmissionRepository submissionRepository;
     private final ReviewRequestRepository reviewRequestRepository;
     private final FinalDecisionRepository finalDecisionRepository;
-
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
 
@@ -203,9 +202,6 @@ public class ArticleServiceImpl implements ArticleService {
         }).toList();
     }
 
-
-    //TODO transaction merkle rootlari hesaplanacak
-    //TODO private key public key ile sign edilecek
     @Override
     public List<SubmitEntity> getRejectedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId) {
         // THis is just returns the submissions that

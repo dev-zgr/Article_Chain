@@ -83,6 +83,6 @@ public interface BlockRepository {
      * @param blockEntity The block entity with updated information.
      * @return True if the block was successfully updated, false otherwise.
      */
-    boolean updateBlock(BlockEntity blockEntity) ;
+    boolean updateBlock(BlockEntity blockEntity);
 
     }
