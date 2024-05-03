@@ -47,7 +47,9 @@ public class NodeModel {
      * NodeModel constructor.
      */
     public NodeModel(){
-
+        this.nodeAddress = "localhost";
+        this.nodePort = "8080";
+        this.uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 
 
