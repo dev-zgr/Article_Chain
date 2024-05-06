@@ -46,7 +46,7 @@ public class TransactionHolder {
     public TransactionHolder(){
         String rootPath = System.getProperty("user.dir");
 
-        this.resourceFile = new File(rootPath + "\\src\\main\\resources\\waiting-transactions.json");
+        this.resourceFile = new File(rootPath + "/src/main/resources/waiting-transactions.json");
 
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.example.blockchain.DataLayer.Entities")

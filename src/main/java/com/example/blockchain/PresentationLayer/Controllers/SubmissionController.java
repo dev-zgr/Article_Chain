@@ -2,6 +2,7 @@ package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.DataLayer.Entities.FileEntity;
 import com.example.blockchain.DataLayer.Entities.SubmitEntity;
+import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.ReviewPendingArticleExtendedDTO;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.SubmissionRequestDTO;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
@@ -179,7 +180,7 @@ public class SubmissionController {
             if (desiredSubmissions.isEmpty()) {
                 return ResponseEntity
                         .status(HttpStatus.NO_CONTENT)
-                        .body(null);
+                        .body(List.of());
             }
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -192,6 +193,25 @@ public class SubmissionController {
         }
     }
 
+
+    @GetMapping(path = "/transaction/{id}", produces = "application/json")
+    public ResponseEntity<TransactionEntity> getTransactionById(@PathVariable Long id){
+        try {
+            TransactionEntity transaction = articleService.getPendingTransactionById(id);
+            if(transaction == null){
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .body(null);
+            }else {
+                return ResponseEntity.ok()
+                        .body(transaction);
+            }
+        } catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
     @GetMapping(path = "/rejected-submission", produces = "application/json")
     public ResponseEntity<List<SubmitEntity>> findRejectedSubmissions(
             @RequestParam(name = "category", defaultValue = "null", required = false) String category,

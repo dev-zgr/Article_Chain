@@ -1,8 +1,6 @@
 package com.example.blockchain.ServiceLayer.Services.Interfaces;
 
-import com.example.blockchain.DataLayer.Entities.ArticleEmbeddable;
-import com.example.blockchain.DataLayer.Entities.FileEntity;
-import com.example.blockchain.DataLayer.Entities.SubmitEntity;
+import com.example.blockchain.DataLayer.Entities.*;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.*;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import org.springframework.core.io.Resource;
@@ -93,4 +91,15 @@ public interface ArticleService {
      * @return Resource of the file
      */
     byte[] getFileByUUID(UUID filenameUUID);
+
+    /**
+     * Gets the pending transaction by its ID
+     * @param id ID of the transaction
+     * @return TransactionEntity if exists
+     */
+    SubmitEntity getPendingTransactionById(Long txId);
+
+    List<BlockEntity> getAllBlock(int pageNo, boolean ascending);
+    Long getBlockPageCount();
+
 }

@@ -11,15 +11,14 @@ import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpMethod;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +31,8 @@ import java.util.stream.Stream;
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
+    @Value("${pagination.maxPageSize}")
+    private int pageSize;
     private final BlockChainModel blockChainModel;
     private final BlockRepository blockRepository;
     private final SubmissionRepository submissionRepository;
@@ -40,6 +41,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
 
+    private final BlockChainPagingSortingRepository blockChainPagingSortingRepository;
     private final NodeModel nodeModel;
 
     @Value("${node.addressingSystem.ip}")
@@ -49,7 +51,7 @@ public class ArticleServiceImpl implements ArticleService {
     private String nrsPort;
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder, NodeModel nodeModel) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder, BlockChainPagingSortingRepository blockChainPagingSortingRepository, NodeModel nodeModel) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
         this.submissionRepository = submissionRepository;
@@ -57,6 +59,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.reviewRequestRepository = reviewRequestRepository;
         this.finalDecisionRepository = finalDecisionRepository;
         this.transactionHolder = transactionHolder;
+        this.blockChainPagingSortingRepository = blockChainPagingSortingRepository;
         this.nodeModel = nodeModel;
     }
 
@@ -263,6 +266,28 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     }
+
+    @Override
+    public SubmitEntity getPendingTransactionById(Long txId) {
+        return submissionRepository.getByTxId(txId).get(0);
+    }
+
+    @Override
+    public List<BlockEntity> getAllBlock(int pageNo, boolean ascending) {
+        Pageable pageable;
+        if (ascending) {
+            pageable = PageRequest.of(pageNo, pageSize, Sort.by("indexNo").ascending());
+        } else {
+            pageable = PageRequest.of(pageNo, pageSize, Sort.by("indexNo").descending());
+        }
+        return blockChainPagingSortingRepository.findAll(pageable).getContent();
+    }
+
+    @Override
+    public Long getBlockPageCount() {
+        return (blockChainPagingSortingRepository.count() + pageSize - 1) / pageSize;
+    }
+
 
     private boolean postFile(FileEntity file){
 

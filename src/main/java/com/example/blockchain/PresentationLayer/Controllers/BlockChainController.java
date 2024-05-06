@@ -1,9 +1,13 @@
 package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.GenericListResponseDTO;
+import com.example.blockchain.ServiceLayer.Services.Implementations.ArticleServiceImpl;
 import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
+import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +18,14 @@ import java.util.List;
  * it handles the HTTP requests and responses for the BlockChain.
  */
 @RestController
+@CrossOrigin(origins = "*")
 public class BlockChainController {
 
     /**
      * This is the BlockChainService that this controller uses to handle the HTTP requests.
      */
     BlockChainService blockChainService;
+    private ArticleService articleService;
 
     /**
      * This constructor is used to create the BlockChainController with the BlockChainService.
@@ -27,8 +33,9 @@ public class BlockChainController {
      * @param blockChainService BlockChainService that this controller uses to handle business logic of the HTTP requests
      */
     @Autowired
-    public BlockChainController(BlockChainService blockChainService) {
+    public BlockChainController(BlockChainService blockChainService, ArticleService articleService) {
         this.blockChainService = blockChainService;
+        this.articleService =  articleService;
     }
 
     /**
@@ -38,16 +45,36 @@ public class BlockChainController {
      * @return a list of all the blocks in the BlockChain with HTTP200 if the request is successful.
      * HTTP204  with null body if the request is unsuccessful.
      */
-    @GetMapping(value = "/block", produces = {"application/json"})
-    public ResponseEntity<List<BlockEntity>> getAllBlocks() {
-        var block = blockChainService.retrieveAllBlock();
+//    @GetMapping(value = "/block", produces = {"application/json"})
+//    public ResponseEntity<List<BlockEntity>> getAllBlocks() {
+//        var block = blockChainService.retrieveAllBlock();
+//
+//        if (block == null) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        } else {
+//            return new ResponseEntity<>(block, HttpStatus.OK);
+//        }
+//
+//    }
 
-        if (block == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(block, HttpStatus.OK);
+    @GetMapping(path = "/block", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<GenericListResponseDTO<BlockEntity>> getAllBlock(
+            @RequestParam(value = "page-no", defaultValue = "0")
+            int pageNo,
+            @RequestParam(value = "ascending", defaultValue = "true")
+            boolean ascending) {
+        try{
+            GenericListResponseDTO<BlockEntity> response = new GenericListResponseDTO<>();
+            response.setData(articleService.getAllBlock(pageNo, ascending));
+            response.setPageNumber(articleService.getBlockPageCount());
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
-
     }
 
     /**
@@ -95,6 +122,8 @@ public class BlockChainController {
         }
 
     }
+
+
 
     /**
      * This method is used to mine new block in blockchain
