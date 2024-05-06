@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +61,10 @@ public class BlockEntity {
     @Column(name = "sender_uuid")
     private UUID sender_uuid;
 
+    @Lob
+    @Column(name = "digital_signature", columnDefinition="BLOB")
+    private byte[] digital_signature;
+
     /**
      * Fields for storing the list of transactions in the block.
      */
@@ -83,6 +86,8 @@ public class BlockEntity {
         this.transactionList = new ArrayList<>();
         this.timestamp = new Date().toString();
         this.merkleRoot = calculateMerkleRoot();
+        this.sender_uuid = null;
+        this.digital_signature = null;
     }
 
     /**
@@ -92,7 +97,7 @@ public class BlockEntity {
      * @param previousHash  The hash of the previous block in the blockchain.
      * @param transactions  List of transactions to be included in the block.
      */
-    public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions, UUID sender_uuid) {
+    public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions, UUID sender_uuid, PrivateKey privateKey) {
         this.indexNo = index;
         this.nonce = 0;
         this.previousBlockHash = previousHash;
@@ -101,6 +106,7 @@ public class BlockEntity {
         this.merkleRoot = calculateMerkleRoot();
         this.currentBlockHash = this.ProofOfWork();
         this.sender_uuid = sender_uuid;
+        this.digital_signature = this.generateSignature(privateKey);
     }
 
     /**
@@ -110,6 +116,7 @@ public class BlockEntity {
         nonce = 0;
         previousBlockHash  = timestamp = merkleRoot = null;
         sender_uuid = null;
+        digital_signature = null;
         transactionList = new ArrayList<>();
     }
 
@@ -126,8 +133,7 @@ public class BlockEntity {
 
         do {
             nonce++;
-            input = indexNo + timestamp + nonce + previousBlockHash + transactionList.toString();
-            hash = calculateHash(input);
+            hash = calculateHash();
         } while (!hash.startsWith(target));
 
         return hash;
@@ -136,10 +142,10 @@ public class BlockEntity {
     /**
      * Calculates the SHA-256 hash of the given input string.
      *
-     * @param input The input string to be hashed.
      * @return The SHA-256 hash of the input string.
      */
-    public static String calculateHash(String input){
+    public String calculateHash(){
+        String input = indexNo + timestamp + nonce + previousBlockHash + transactionList.toString();
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes());
@@ -241,8 +247,19 @@ public class BlockEntity {
         return targetBuilder.toString();
     }
 
-    public String generateSignature(){
+    public byte[] generateSignature(PrivateKey privateKey){
+        try{
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
 
-        return "pseudo";
+            byte[] messageBytes = this.currentBlockHash.getBytes();
+
+            signature.update(messageBytes);
+            byte[] digitalSignature = signature.sign();
+
+            return digitalSignature;
+        }catch (Exception e){
+            return null;
+        }
     }
 }

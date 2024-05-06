@@ -87,24 +87,35 @@ public class BlockChainModel {
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
 
-                if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
+            if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
+                return false;
+            }
 
-                    return false;
-                }
+            var current_block_hash = currentBlock.calculateHash();
 
-                var current_block_hash = currentBlock.getCurrentBlockHash();
+            if (!current_block_hash.startsWith(target)) {
+                return false;
+            }
 
-                if (!current_block_hash.startsWith(target)) {
-                    return false;
-                }
-                // TODO Transaction imzasi kontrol edilmeli
+            //TODO This method should be completed with digital signature control.
 
-                return true;
+            byte[] digitalSignature = currentBlock.getDigital_signature();
 
 
-        }catch (NoSuchAlgorithmException e){
+
+            String signatureValue;
+
+            return true;
+
+
+        }catch (Exception e){
             e.printStackTrace();
         }
+        return true;
+    }
+
+    public boolean isValidTransaction(){
+        //TODO This method should be completed.
         return true;
     }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class used to represent Node addressing system in NRS system.
@@ -76,7 +77,7 @@ public class NodeAdressingSystemModel {
 
     /**
      * This method get all node records from the node addressing directory using HTTP GET.
-     * @param directory directory that node records will be get from
+     * @param directory directory that node records will be got from
      * @return List<NodeRecord> This returns all node records in the directory.
      */
     public List<NodeRecord> getAllNodes(String directory) {
@@ -84,5 +85,11 @@ public class NodeAdressingSystemModel {
         ResponseEntity<List<NodeRecord>> response = restTemplate.exchange(getAddress()+"/node-service/get-nodes", HttpMethod.GET, null, new ParameterizedTypeReference<List<NodeRecord>>() {
         });
         return response.getBody();
+    }
+
+    public byte[] getPublicKeyByUUID(){
+        //TODO This method should be completed.
+
+        return "".getBytes();
     }
 }
