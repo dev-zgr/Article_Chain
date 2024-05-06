@@ -26,23 +26,17 @@ public class SubmitEntity extends TransactionEntity {
     @Column(name = "paper_hash")
     private String paper_hash;
 
-
-    /**
-     * Constructor for creating an instance of SubmitEntity with paper hash and article details.
-     *
-     * @param paperHash The hash of the submitted paper.
-     * @param article   The details of the article being submitted.
-     */
-    public SubmitEntity(String paperHash, ArticleEmbeddable article) {
-        this.paper_hash = paperHash;
-        this.article = article;
-    }
-
     /**
      * Default constructor for creating an instance of SubmitEntity with default values.
      */
     public SubmitEntity() {
         super();
+        this.article = new ArticleEmbeddable();
+        this.paper_hash = "";
+    }
+
+    public SubmitEntity(UUID sender_uuid){
+        super(sender_uuid);
         this.article = new ArticleEmbeddable();
         this.paper_hash = "";
     }
@@ -53,7 +47,8 @@ public class SubmitEntity extends TransactionEntity {
      * @param article     The details of the article being submitted.
      * @param paper_hash  The hash of the submitted paper.
      */
-    public SubmitEntity(ArticleEmbeddable article, String paper_hash) {
+    public SubmitEntity(ArticleEmbeddable article, String paper_hash, UUID sender_uuid) {
+        super(sender_uuid);
         this.article = article;
         this.paper_hash = paper_hash;
     }

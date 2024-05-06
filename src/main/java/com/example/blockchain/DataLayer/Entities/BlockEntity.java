@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This entity is used for defining the block structure of the blockchain.
@@ -58,6 +59,9 @@ public class BlockEntity {
     @Column(name = "merkle_root")
     private String merkleRoot;
 
+    @Column(name = "sender_uuid")
+    private UUID sender_uuid;
+
     /**
      * Fields for storing the list of transactions in the block.
      */
@@ -88,7 +92,7 @@ public class BlockEntity {
      * @param previousHash  The hash of the previous block in the blockchain.
      * @param transactions  List of transactions to be included in the block.
      */
-    public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions) {
+    public BlockEntity(int index, String previousHash, List<TransactionEntity> transactions, UUID sender_uuid) {
         this.indexNo = index;
         this.nonce = 0;
         this.previousBlockHash = previousHash;
@@ -96,6 +100,7 @@ public class BlockEntity {
         this.timestamp = new Date().toString();;
         this.merkleRoot = calculateMerkleRoot();
         this.currentBlockHash = this.ProofOfWork();
+        this.sender_uuid = sender_uuid;
     }
 
     /**
@@ -104,6 +109,7 @@ public class BlockEntity {
     public BlockEntity() {
         nonce = 0;
         previousBlockHash  = timestamp = merkleRoot = null;
+        sender_uuid = null;
         transactionList = new ArrayList<>();
     }
 
@@ -233,5 +239,10 @@ public class BlockEntity {
             targetBuilder.append('0');
         }
         return targetBuilder.toString();
+    }
+
+    public String generateSignature(){
+
+        return "pseudo";
     }
 }

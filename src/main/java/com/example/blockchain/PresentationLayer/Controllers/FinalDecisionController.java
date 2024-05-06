@@ -52,7 +52,7 @@ public class FinalDecisionController {
                                                    @RequestPart("jsonBody") @Valid FinalDecisionEntityDTO finalDecisionEntityDTO) {
 
         try {
-            boolean status = articleService.submitFinalDecision(finalDecisionEntityDTO, file,txId);
+            boolean status = articleService.submitFinalDecision(finalDecisionEntityDTO, file, txId);
             if(status){
                 return ResponseEntity
                         .status(200)

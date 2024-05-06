@@ -2,6 +2,8 @@ package com.example.blockchain.PresentationLayer.DataTransferObjects;
 
 import jakarta.validation.constraints.Email;
 
+import java.util.UUID;
+
 /**
  * This class is responsible for holding the Review Request for the  articles.
  * It's a Data Transfer Object for the ReviewRequest Entity. this means that it's used to transfer data between the
@@ -28,6 +30,7 @@ public class ReviewRequestDTO {
     public long referringTxId;
 
     public AcceptanceEnumDTO acceptanceStatus;
+
 
     /**
      * This constructor is used to create the review request entity with the reviewer name, reviewer research field,

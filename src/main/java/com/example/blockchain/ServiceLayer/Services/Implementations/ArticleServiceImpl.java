@@ -5,6 +5,7 @@ import com.example.blockchain.DataLayer.Repositories.Interfaces.*;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.*;
 import com.example.blockchain.ServiceLayer.Mappers.SubmissionMapper;
 import com.example.blockchain.ServiceLayer.Models.BlockChainModel;
+import com.example.blockchain.ServiceLayer.Models.NodeModel;
 import com.example.blockchain.ServiceLayer.Models.TransactionHolder;
 import com.example.blockchain.ServiceLayer.Exceptions.NoSuchReviewRequest;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
@@ -39,6 +40,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final BlockChainService blockChainService;
     private final TransactionHolder transactionHolder;
 
+    private final NodeModel nodeModel;
+
     @Value("${node.addressingSystem.ip}")
     private String nrsIpAddress;
 
@@ -46,7 +49,7 @@ public class ArticleServiceImpl implements ArticleService {
     private String nrsPort;
 
     @Autowired
-    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder) {
+    public ArticleServiceImpl(BlockRepository blockRepository, BlockChainService blockChainService, SubmissionRepository submissionRepository, BlockChainModel blockChainModel, ReviewRequestRepository reviewRequestRepository, FinalDecisionRepository finalDecisionRepository, TransactionHolder transactionHolder, NodeModel nodeModel) {
         this.blockRepository = blockRepository;
         this.blockChainService = blockChainService;
         this.submissionRepository = submissionRepository;
@@ -54,12 +57,13 @@ public class ArticleServiceImpl implements ArticleService {
         this.reviewRequestRepository = reviewRequestRepository;
         this.finalDecisionRepository = finalDecisionRepository;
         this.transactionHolder = transactionHolder;
+        this.nodeModel = nodeModel;
     }
 
     @Override
     public void submitArticle(ArticleEmbeddable articleEmbeddable) {
         //create submission entity
-        SubmitEntity submitEntity = new SubmitEntity();
+        SubmitEntity submitEntity = new SubmitEntity(nodeModel.getUuid());
         submitEntity.setArticle(articleEmbeddable);
 
 
@@ -85,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     public boolean submitPendingSubmission(ArticleEmbeddableDTO articleEmbeddable, MultipartFile multipartFile, String paperHash) throws IOException {
         //create submission entity
-        SubmitEntity submitEntity = new SubmitEntity();
+        SubmitEntity submitEntity = new SubmitEntity(nodeModel.getUuid());
         ArticleEmbeddable articleEmbeddable1 = SubmissionMapper.mapDTOToArticleEmbeddable(articleEmbeddable, new ArticleEmbeddable());
         submitEntity.setArticle(articleEmbeddable1);
         System.out.println(articleEmbeddable1);
@@ -110,7 +114,8 @@ public class ArticleServiceImpl implements ArticleService {
                 reviewRequest.reviewerResearchField,
                 reviewRequest.reviewerEmail,
                 reviewRequest.referringTxId,
-                reviewRequest.acceptanceStatus);
+                reviewRequest.acceptanceStatus,
+                nodeModel.getUuid());
         return transactionHolder.addPendingTransaction(reviewRequestEntity);
     }
 
@@ -126,7 +131,8 @@ public class ArticleServiceImpl implements ArticleService {
                     finalDecision.decisionPoint,
                     finalDecision.review_type,
                     AcceptanceEnumDTO.ACCEPTED,
-                    finalDecision.getFileIdentifier()
+                    finalDecision.getFileIdentifier(),
+                    nodeModel.getUuid()
             );
 
             FileEntity fileEntity = new FileEntity();

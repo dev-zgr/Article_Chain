@@ -1,5 +1,6 @@
 package com.example.blockchain.DataLayer.Entities;
 
+import com.example.blockchain.ServiceLayer.Models.NodeModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -10,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * Base entity representing a transaction in the blockchain.
@@ -40,6 +42,9 @@ public class TransactionEntity {
     @Column(name = "timestamp")
     private String timestamp;
 
+    @Column(name = "sender_uuid")
+    private UUID sender_uuid;
+
     /**
      * Fields for storing the hash of the transaction. This fields creates Many-To-One relationship with the BlockEntity.
      */
@@ -50,11 +55,19 @@ public class TransactionEntity {
     /**
      * Default constructor for creating an instance of TransactionEntity with default values.
      */
-    public TransactionEntity() {
+    public TransactionEntity(UUID sender_uuid) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.timestamp = now.format(formatter);
+        this.sender_uuid = sender_uuid;
     }
+
+    public TransactionEntity() {
+        this.tx_id = 0;
+        this.timestamp = null;
+        this.sender_uuid = null;
+    }
+
 
     /**
      * Calculates the hash of the transaction using its ID and timestamp.

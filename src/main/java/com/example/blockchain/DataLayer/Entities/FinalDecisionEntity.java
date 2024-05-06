@@ -54,10 +54,9 @@ public class FinalDecisionEntity extends ReviewRequestEntity {
      * @param decision_file_hash The hash of the decision file.
      * @param decisionPoint      The status of the final decision point.
      * @param review_type        The type of the review.
-     * @param review_hash
      */
-    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, AcceptanceEnumDTO acceptanceEnumDTO,  UUID fileIdentifier){
-        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId(),acceptanceEnumDTO);
+    public FinalDecisionEntity(ReviewRequestEntity reviewRequest, String decision_file_hash, int decisionPoint, DecisionStatus review_type, AcceptanceEnumDTO acceptanceEnumDTO,  UUID fileIdentifier, UUID sender_uuid){
+        super(reviewRequest.getReviewer_name(),reviewRequest.getReviewerResearchField(),reviewRequest.getReviewer_email(),reviewRequest.getManuscriptId(),acceptanceEnumDTO, sender_uuid);
         this.decision_file_hash = decision_file_hash;
         this.decisionPoint = decisionPoint;
         this.review_type = review_type;

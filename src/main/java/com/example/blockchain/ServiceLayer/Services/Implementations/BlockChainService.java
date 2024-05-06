@@ -98,7 +98,7 @@ public class BlockChainService {
         List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).collect(Collectors.toList());
 
         if (activeNodes.size() == 1 && blockRepository.getBlockAllBlock().isEmpty()) {
-            blockRepository.persistBlock(new BlockEntity(1, "000", new LinkedList<TransactionEntity>()));
+            blockRepository.persistBlock(new BlockEntity(1, "000", new LinkedList<TransactionEntity>(), nodeModel.getUuid()));
         } else {
             replicateChain(activeNodes);
         }
@@ -167,7 +167,7 @@ public class BlockChainService {
         } catch (Exception e) {
             pendingTransactions = new ArrayList<>();
         }
-        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash(), pendingTransactions);
+        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash(), pendingTransactions, nodeModel.getUuid());
         blockEntity.setCurrentBlockHash(blockEntity.ProofOfWork());
         return blockEntity;
     }

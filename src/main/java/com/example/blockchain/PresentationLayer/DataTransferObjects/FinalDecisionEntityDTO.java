@@ -47,7 +47,6 @@ public class FinalDecisionEntityDTO {
         this.review_type = review_type;
         this.review_hash = review_hash;
         this.fileIdentifier = UUID.randomUUID();
-
     }
 
     /**
@@ -59,6 +58,5 @@ public class FinalDecisionEntityDTO {
         this.review_type = null;
         this.review_hash = "";
         this.fileIdentifier = UUID.randomUUID();
-
     }
 }

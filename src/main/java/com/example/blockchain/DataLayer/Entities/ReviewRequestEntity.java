@@ -1,10 +1,13 @@
 package com.example.blockchain.DataLayer.Entities;
 
 import com.example.blockchain.PresentationLayer.DataTransferObjects.AcceptanceEnumDTO;
+import com.example.blockchain.ServiceLayer.Models.NodeModel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.UUID;
 
 /**
  * This entity is used for representing a review request in the blockchain.
@@ -53,8 +56,8 @@ public class ReviewRequestEntity extends TransactionEntity{
      * @param reviewer_email         The email address of the reviewer.
      * @param manuscriptId          The ID of the referring transaction.
      */
-    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long manuscriptId , AcceptanceEnumDTO acceptanceEnumDTO) {
-        super();
+    public ReviewRequestEntity(String reviewer_name, String reviewer_resField, String reviewer_email, long manuscriptId , AcceptanceEnumDTO acceptanceEnumDTO, UUID sender_uuid) {
+        super(sender_uuid);
         this.reviewer_name = reviewer_name;
         this.reviewerResearchField = reviewer_resField;
         this.reviewer_email = reviewer_email;

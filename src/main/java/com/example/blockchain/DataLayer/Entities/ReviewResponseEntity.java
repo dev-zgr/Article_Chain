@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.UUID;
+
 /**
  * This class is used to store the review response entity
  */
@@ -32,8 +34,8 @@ public class ReviewResponseEntity extends TransactionEntity {
      * @param reviewResponseLetterHash
      * @param referringSubmissionId
      */
-    public ReviewResponseEntity(String reviewResponseLetterHash, long referringSubmissionId) {
-        super();
+    public ReviewResponseEntity(String reviewResponseLetterHash, long referringSubmissionId, UUID sender_uuid) {
+        super(sender_uuid);
         this.reviewResponseLetterHash = reviewResponseLetterHash;
         this.referringSubmissionId = referringSubmissionId;
     }
