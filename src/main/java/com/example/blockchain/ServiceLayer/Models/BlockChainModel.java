@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,34 +80,37 @@ public class BlockChainModel {
      * and recalculating the hash of the current block
      * @param previousBlock previous block in the blockchain
      * @param currentBlock current block in the blockchain
+     * @param senderPublicKey public key of the current block's creator
      * @return true if blockchain valid, false if not
      */
-    public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock){
+    public boolean isValid(BlockEntity previousBlock, BlockEntity currentBlock, byte[] senderPublicKey){
         try{
-            String target = BlockEntity.generateTarget();
-
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            String target = BlockEntity.generateTarget(4);
 
             if(!currentBlock.getPreviousBlockHash().equals(previousBlock.getCurrentBlockHash())){
                 return false;
             }
 
-            var current_block_hash = currentBlock.calculateHash();
+            var current_block_hash = currentBlock.getCurrentBlockHash();
 
             if (!current_block_hash.startsWith(target)) {
                 return false;
             }
 
-            //TODO This method should be completed with digital signature control.
-
             byte[] digitalSignature = currentBlock.getDigital_signature();
 
+            PublicKey rawPublicKey = KeyFactory.getInstance("RSA")
+                    .generatePublic(new X509EncodedKeySpec(senderPublicKey));
 
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initVerify(rawPublicKey);
+            signature.update(current_block_hash.getBytes());
 
-            String signatureValue;
+            if (!signature.verify(digitalSignature)){
+                return false;
+            }
 
             return true;
-
 
         }catch (Exception e){
             e.printStackTrace();

@@ -136,7 +136,9 @@ public class BlockChainService {
         assert allNodes != null;
         List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).toList();
 
-        if (blockChainModel.isValid(lastBlock, blockEntity)) {
+        byte[] senderPublicKey = nodeAdressingSystemModel.getPublicKeyByUUID(blockEntity.getSender_uuid());
+
+        if (blockChainModel.isValid(lastBlock, blockEntity, senderPublicKey)) {
             List<TransactionEntity> transactionList = blockEntity.getTransactionList();
             transactionRepository.saveAll(transactionList);
             blockRepository.persistBlock(blockEntity);
@@ -167,9 +169,7 @@ public class BlockChainService {
         } catch (Exception e) {
             pendingTransactions = new ArrayList<>();
         }
-        BlockEntity blockEntity = new BlockEntity(newIndex, lastBlock.getCurrentBlockHash(), pendingTransactions, nodeModel.getUuid(), keyHolder.getPrivateKey());
-        blockEntity.setCurrentBlockHash(blockEntity.ProofOfWork());
-        return blockEntity;
+        return new BlockEntity(newIndex, lastBlock.getCurrentBlockHash(), pendingTransactions, nodeModel.getUuid(), keyHolder.getPrivateKey());
     }
 
     /**
@@ -240,7 +240,8 @@ public class BlockChainService {
         for (int i = 0; i < allBlocks.size() - 1; i++) {
             var previousBlock = allBlocks.get(i);
             var currentBlock = allBlocks.get(i + 1);
-            if (!blockChainModel.isValid(previousBlock, currentBlock)) {
+            byte[] senderPublicKey = nodeAdressingSystemModel.getPublicKeyByUUID(currentBlock.getSender_uuid());
+            if (!blockChainModel.isValid(previousBlock, currentBlock, senderPublicKey)) {
                 return false;
             }
         }
@@ -256,7 +257,9 @@ public class BlockChainService {
     public boolean acceptExternalBlock(BlockEntity recentBlock) {
         var lastNode = blockRepository.getBlockLastBlock();
 
-        if (blockChainModel.isValid(lastNode, recentBlock)) {
+        byte[] senderPublicKey = nodeAdressingSystemModel.getPublicKeyByUUID(recentBlock.getSender_uuid());
+
+        if (blockChainModel.isValid(lastNode, recentBlock, senderPublicKey)) {
             return blockRepository.persistBlock(recentBlock);
         }
         return false;

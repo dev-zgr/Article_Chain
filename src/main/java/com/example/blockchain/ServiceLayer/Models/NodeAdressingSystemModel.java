@@ -87,9 +87,13 @@ public class NodeAdressingSystemModel {
         return response.getBody();
     }
 
-    public byte[] getPublicKeyByUUID(){
-        //TODO This method should be completed.
-
-        return "".getBytes();
+    public byte[] getPublicKeyByUUID(UUID uuid){
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<byte[]> response = restTemplate.getForEntity(getAddress() + "/node-service/getPublicKey?uuid=" + uuid, byte[].class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            return null;
+        }
     }
 }

@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.security.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This entity is used for defining the block structure of the blockchain.
@@ -102,7 +99,7 @@ public class BlockEntity {
         this.nonce = 0;
         this.previousBlockHash = previousHash;
         this.transactionList = transactions;
-        this.timestamp = new Date().toString();;
+        this.timestamp = new Date().toString();
         this.merkleRoot = calculateMerkleRoot();
         this.currentBlockHash = this.ProofOfWork();
         this.sender_uuid = sender_uuid;
@@ -126,14 +123,13 @@ public class BlockEntity {
      * @return The hash of the block that satisfies the proof-of-work conditions.
      */
     public String ProofOfWork() {
-        String target = generateTarget();
+        String target = generateTarget(4);
 
-        String input;
         String hash;
 
         do {
-            nonce++;
             hash = calculateHash();
+            nonce++;
         } while (!hash.startsWith(target));
 
         return hash;
@@ -237,15 +233,7 @@ public class BlockEntity {
      *
      * @return The target string with leading zeros based on the difficulty level.
      */
-    public static String generateTarget() {
-        int difficulty = 4;
-
-        StringBuilder targetBuilder = new StringBuilder();
-        for (int i = 0; i < difficulty; i++) {
-            targetBuilder.append('0');
-        }
-        return targetBuilder.toString();
-    }
+    public static String generateTarget(int difficulty) {return "0".repeat(difficulty);}
 
     public byte[] generateSignature(PrivateKey privateKey){
         try{
@@ -255,9 +243,8 @@ public class BlockEntity {
             byte[] messageBytes = this.currentBlockHash.getBytes();
 
             signature.update(messageBytes);
-            byte[] digitalSignature = signature.sign();
 
-            return digitalSignature;
+            return signature.sign();
         }catch (Exception e){
             return null;
         }
