@@ -184,22 +184,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<SubmitEntity> getVerifiedSubmissions(String category, String title, String author, String department, String intuition, String keyword, Long txId,String articleType) {
         List<Long> verifiedSubmissionsFirstStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,20,DecisionStatus.FirstReview ,keyword,txId,articleType);
-        //List<Long> verifiedSubmissionsSecondStep = finalDecisionRepository.findVerifiedSubmissions(category, title, author, department, intuition,DecisionStatus.RevisionReview ,keyword,txId,articleType);
-
-//        return Stream.concat(
-//                        verifiedSubmissionsFirstStep.stream(),
-//                        verifiedSubmissionsSecondStep.stream())
-//                .distinct()
-//                .flatMap(id -> submissionRepository.getByTxId(id).stream())
-//                .map(s -> {
-//                    String latestFinalDecisionDate = finalDecisionRepository.findLatestFinalDecisionDateByTxId(s.getTx_id());
-//                    LocalDateTime dateTime = LocalDateTime.parse(latestFinalDecisionDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-//                    String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-//                    s.getArticle().setArticle_date(formattedDate);
-//                    return s;
-//                })
-//                .toList();
-
         return verifiedSubmissionsFirstStep.stream().distinct().flatMap(
                 id -> submissionRepository.getByTxId(id).stream()
         ).map(s -> {

@@ -122,8 +122,6 @@ public class SubmissionController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
         }
-
-
     }
 
 
