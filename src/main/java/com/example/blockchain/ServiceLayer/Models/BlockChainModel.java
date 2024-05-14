@@ -4,6 +4,8 @@ import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -133,12 +135,36 @@ public class BlockChainModel {
         RestTemplate restTemplate = new RestTemplate();
 
         try{
-            var response = restTemplate.postForObject(ipAddress +"/block_chain/block", blockToPost, String.class);
+            var response = restTemplate.postForObject(ipAddress + "/block", blockToPost, String.class);
             if(response != null){
             }
         }catch (Exception ignored){
         }
 
+    }
+
+    public boolean postMiningQualification(String ipAddress){
+        RestTemplate restTemplate = new RestTemplate();
+        int maxRetries = 3;
+        int retryCount = 0;
+
+        while (retryCount < maxRetries) {
+            try {
+                ResponseEntity<String> response = restTemplate.postForEntity(ipAddress + "/change_miner_status", null, String.class);
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    return true;
+                }
+            } catch (Exception e) {
+                System.err.println("Error occurred while posting mining qualification: " + e.getMessage());
+            }
+            retryCount++;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return false;
     }
 
 

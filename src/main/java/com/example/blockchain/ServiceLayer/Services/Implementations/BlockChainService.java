@@ -5,12 +5,14 @@ import com.example.blockchain.DataLayer.Entities.NodeRecord;
 import com.example.blockchain.DataLayer.Entities.TransactionEntity;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.BlockRepository;
 import com.example.blockchain.DataLayer.Repositories.Interfaces.TransactionRepository;
+import com.example.blockchain.PresentationLayer.DataTransferObjects.GenericListResponseDTO;
 import com.example.blockchain.ServiceLayer.Models.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -131,10 +133,7 @@ public class BlockChainService {
         var lastBlock = blockRepository.getBlockLastBlock();
         BlockEntity blockEntity = getBlockEntity(lastBlock);
 
-
-        List<NodeRecord> allNodes = nodeAdressingSystemModel.getAllNodes("/node-service/get-nodes");
-        assert allNodes != null;
-        List<NodeRecord> activeNodes = allNodes.stream().filter(NodeRecord::isActive).toList();
+        List<NodeRecord> activeNodes = getActiveNodes();
 
         byte[] senderPublicKey = nodeAdressingSystemModel.getPublicKeyByUUID(blockEntity.getSender_uuid());
 
@@ -151,6 +150,13 @@ public class BlockChainService {
 
 
         return blockEntity;
+    }
+
+    private List<NodeRecord> getActiveNodes(){
+        List<NodeRecord> allNodes = nodeAdressingSystemModel.getAllNodes("/node-service/get-nodes");
+        assert allNodes != null;
+
+        return allNodes.stream().filter(NodeRecord::isActive).toList();
     }
 
     /**
@@ -188,46 +194,51 @@ public class BlockChainService {
      * @param nodeRecords Hash of the block
      */
     private void replicateChain(List<NodeRecord> nodeRecords) {
-        //if there is more block than our blocks in the chain set that node as a major node
-
-        // compare all nodes and determine the longest chain
-
+        // Compare all nodes and determine the longest chain
         NodeRecord majorNode = null;
         int selfLength = blockRepository.getBlockAllBlock().size();
-
 
         for (NodeRecord nodeRecord : nodeRecords) {
             RestTemplate restTemplate1 = new RestTemplate();
             if (nodeRecord.getIpAddress().equals(nodeModel.getFinalIpAddress())) {
                 continue;
             }
-            String urlS1 = nodeRecord.getIpAddress() + "/block_chain/block";
-            ResponseEntity<List<BlockEntity>> response1 = restTemplate1.exchange(urlS1, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {
-            });
+            String urlS1 = nodeRecord.getIpAddress() + "/block";
+            ResponseEntity<GenericListResponseDTO<BlockEntity>> responseEntity = restTemplate1.exchange(
+                    urlS1,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<GenericListResponseDTO<BlockEntity>>() {}
+            );
 
-            if (Objects.requireNonNull(response1.getBody()).size() > selfLength) {
+            GenericListResponseDTO<BlockEntity> responseBody = responseEntity.getBody();
+            if (responseBody != null && responseBody.getData().size() > selfLength) {
                 majorNode = nodeRecord;
-                selfLength = response1.getBody().size();
+                selfLength = responseBody.getData().size();
             }
         }
-
 
         if (majorNode == null) {
             return;
         }
 
-        //delete all blocks in db
+        // Delete all blocks in the local database
         blockRepository.deleteAllBlocks();
 
-        // copy blockchain to own application
-        String url = majorNode.getIpAddress() + "/block_chain/block";
+        // Copy blockchain from the major node to own application
+        String url = majorNode.getIpAddress() + "/block";
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<BlockEntity>> response = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<BlockEntity>>() {
-        });
-        List<BlockEntity> blockEntities = response.getBody();
-        assert blockEntities != null;
-        blockEntities.forEach(blockRepository::persistBlock);
-
+        ResponseEntity<GenericListResponseDTO<BlockEntity>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<GenericListResponseDTO<BlockEntity>>() {}
+        );
+        GenericListResponseDTO<BlockEntity> responseBody = response.getBody();
+        if (responseBody != null) {
+            List<BlockEntity> blockEntities = responseBody.getData();
+            blockEntities.forEach(blockRepository::persistBlock);
+        }
     }
 
     /**
@@ -263,6 +274,57 @@ public class BlockChainService {
             return blockRepository.persistBlock(recentBlock);
         }
         return false;
+    }
+
+    @Scheduled(fixedRate = 10000)
+    public void roundRobinConsensus() {
+        List<NodeRecord> activeNodes = getActiveNodes();
+
+        /*
+        System.out.println(nodeModel.isMiner());
+
+        for (NodeRecord activeNode : activeNodes){
+            System.out.println(activeNode.getIpAddress());
+        }
+         */
+
+        boolean success = false;
+
+        if (nodeModel.isMiner()) {
+            mineBlock();
+            nodeModel.setMiner(false);
+
+            for (int i = 0; i < activeNodes.size(); i++) {
+                if (activeNodes.get(i).getUuid().equals(nodeModel.getUuid())) {
+                    int nextIndex = (i + 1) % activeNodes.size();
+
+                    int startIndex = nextIndex;
+
+                    do {
+                        String nextNodeIpAddress = activeNodes.get(nextIndex).getIpAddress();
+                        success = blockChainModel.postMiningQualification(nextNodeIpAddress);
+                        if (success) {
+                            break;
+                        } else {
+                            System.err.println("Failed to notify the next node (" + nextNodeIpAddress + ") about mining qualification.");
+                            nextIndex = (nextIndex + 1) % activeNodes.size();
+                        }
+                    } while (nextIndex != startIndex);
+
+                    if (success) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!success) {
+            nodeModel.setMiner(true);
+        }
+    }
+
+    public void changeMinerStatus(){
+        nodeModel.setMiner(true);
     }
 
 }
