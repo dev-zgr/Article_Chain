@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * This class is responsible for running the Main Spring application.
  */
+@EnableScheduling
 @SpringBootApplication
 public class BlockChainLastApplication implements CommandLineRunner {
 

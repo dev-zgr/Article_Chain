@@ -2,6 +2,7 @@ package com.example.blockchain.PresentationLayer.Controllers;
 
 import com.example.blockchain.DataLayer.Entities.BlockEntity;
 import com.example.blockchain.PresentationLayer.DataTransferObjects.GenericListResponseDTO;
+import com.example.blockchain.ServiceLayer.Models.NodeModel;
 import com.example.blockchain.ServiceLayer.Services.Implementations.ArticleServiceImpl;
 import com.example.blockchain.ServiceLayer.Services.Implementations.BlockChainService;
 import com.example.blockchain.ServiceLayer.Services.Interfaces.ArticleService;
@@ -10,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * This class is the REST Controller for the BlockChain.
@@ -123,8 +122,6 @@ public class BlockChainController {
 
     }
 
-
-
     /**
      * This method is used to mine new block in blockchain
      * @return latest mined block in the blockchain
@@ -138,5 +135,12 @@ public class BlockChainController {
         } else {
             return new ResponseEntity<>(minedBlock, HttpStatus.OK);
         }
+    }
+
+    @PostMapping(value = "/change_miner_status")
+    public ResponseEntity<String> startMining() {
+        blockChainService.changeMinerStatus();
+
+        return ResponseEntity.ok("Mining status updated successfully");
     }
 }

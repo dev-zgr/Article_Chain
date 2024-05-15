@@ -32,15 +32,23 @@ public class NodeModel {
     private UUID uuid;
 
     /**
+     * Node's qualification for mining a block
+     */
+    @Value("true")
+    private boolean isMiner;
+
+    /**
      * NodeModel constructor.
      * @param nodeAddress Node's IP address.
      * @param nodePort Node's port.
      * @param uuid Node's UUID.
+     * @param isMiner Node's qualification for mining a block
      */
-    public NodeModel(String nodeAddress, String nodePort, UUID uuid) {
+    public NodeModel(String nodeAddress, String nodePort, UUID uuid, boolean isMiner) {
         this.nodeAddress = nodeAddress;
         this.nodePort = nodePort;
         this.uuid = uuid;
+        this.isMiner = isMiner;
     }
 
     /**
@@ -50,14 +58,14 @@ public class NodeModel {
         this.nodeAddress = "localhost";
         this.nodePort = "8080";
         this.uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        this.isMiner = true;
     }
-
 
     /**
      * Get node's final IP address. concatenate https:// with node's IP address.
      * @return Node's final IP address.
      */
     public String getFinalIpAddress(){
-        return "https://" + nodeAddress + ":" + nodePort;
+        return "http://" + nodeAddress + ":" + nodePort;
     }
 }
