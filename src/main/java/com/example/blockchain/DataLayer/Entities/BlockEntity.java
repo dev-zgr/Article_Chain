@@ -123,7 +123,7 @@ public class BlockEntity {
      * @return The hash of the block that satisfies the proof-of-work conditions.
      */
     public String ProofOfWork() {
-        String target = generateTarget(4);
+        String target = generateTarget(0);
 
         String hash;
 
