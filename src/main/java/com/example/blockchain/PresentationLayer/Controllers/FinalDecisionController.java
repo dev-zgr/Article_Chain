@@ -17,7 +17,7 @@ import java.io.IOException;
  * it handles the HTTP requests and responses for the Final Decision.
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class FinalDecisionController {
 
 

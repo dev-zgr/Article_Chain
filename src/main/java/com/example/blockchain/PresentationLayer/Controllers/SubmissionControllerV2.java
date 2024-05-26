@@ -48,11 +48,36 @@ public class SubmissionControllerV2 {
             );
             GenericListResponseDTO<ReviewPendingArticleExtendedDTO> response = new GenericListResponseDTO<>();
             response.setData(desiredSubmissions);
-            response.setPageNumber(articleServiceV2.getPageCountAcceptedReviewByEmail(email)); // Assuming you have a method to get page count based on email
+            response.setPageNumber(articleServiceV2.getPageCountAcceptedReviewByEmail(email));
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response);
 
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+
+    @GetMapping(path = "/get-accepted-review-by-email-submission-and-txid", produces = "application/json")
+    public ResponseEntity<ReviewPendingArticleExtendedDTO> getAcceptedReviewByEmailSubmissionsAndTXID(
+            @RequestParam(name = "tx-id", required = true) long txId, @RequestParam(name = "email", defaultValue = "test@test.com", required = true) String email) {
+        try {
+            ReviewPendingArticleExtendedDTO desiredSubmissions = articleServiceV2.getAcceptedReviewByEmailSubmissionsAndTXID(
+                    email, txId
+            );
+            if(desiredSubmissions == null){
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(null);
+
+            }else{
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(desiredSubmissions);
+            }
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
