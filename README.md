@@ -1,4 +1,4 @@
-# ArticleChain Project - README
+# ArticleChain
 
 ## Project Overview
 **ArticleChain** is a blockchain-based platform that aims to revolutionize academic publishing by creating a decentralized, transparent, and secure system for managing academic content. The platform addresses critical issues in traditional academic publishing, such as high costs, lack of transparency, and centralized control.
