@@ -35,12 +35,8 @@ The traditional academic publishing industry faces several significant challenge
    - Deploys smart contracts to handle the lifecycle of articles (submission, peer review, publication).
 
 2. **Database Management**
-   - Utilizes a traditional database (SQL or NoSQL) for storing metadata and supplementary information.
+   - Utilizes a traditional database (SQL) for storing metadata and supplementary information.
    - Ensures efficient querying and data retrieval.
-
-3. **Decentralized Storage**
-   - Stores large files, such as article PDFs, in a decentralized file system (e.g., IPFS).
-   - References to these files are stored on the blockchain for integrity and easy access.
 
 ### Service Layer
 
@@ -49,7 +45,7 @@ The traditional academic publishing industry faces several significant challenge
    - Manages communication between the data and presentation layers.
 
 2. **API Services**
-   - Exposes RESTful APIs or GraphQL endpoints.
+   - Exposes RESTful APIs.
    - Enables frontend applications to interact with blockchain and database services.
 
 3. **Smart Contract Interaction**
@@ -66,23 +62,19 @@ The traditional academic publishing industry faces several significant challenge
    - Developed using mobile frameworks (e.g., React Native).
    - Offers access to the platform’s functionalities on the go.
 
-3. **User Experience (UX)**
+3. **User Experience**
    - Focuses on delivering a responsive and user-friendly experience.
    - Ensures smooth and efficient interactions with the platform.
-
-## Deployment
-**ArticleChain** can be deployed on various platforms, including:
-
-- **Local Development**: Using Docker containers to simulate a multi-node blockchain environment for development and testing.
-- **Cloud Deployment**: Deploying on cloud services like AWS, Google Cloud, or Azure, with a focus on scalability and high availability.
-- **On-Premises**: For institutions that require local control over their infrastructure, the platform can be deployed on-premises.
 
 ## Security Considerations
 The platform incorporates several security measures:
 
-- **Consensus Mechanism**: Utilizes Proof of Stake (PoS) or another suitable consensus algorithm to secure the blockchain against attacks.
-- **Data Encryption**: All data stored in IPFS is encrypted, ensuring that only authorized users can access it.
+- **Consensus Mechanism**: Utilizes Round-Robin consensus algorithm to secure the blockchain against attacks.
+- **Data Encryption**: All data stored in bllockchain is encrypted, ensuring that only authorized users can access it.
 - **Smart Contract Audits**: Regular audits are conducted on smart contracts to identify and mitigate potential vulnerabilities.
+
+## Website
+To get more information about the ArticleChain project and the team, [ArticleChain](https://article-chain.com) website can be visited.
 
 ## Conclusion
 **ArticleChain** offers a robust, decentralized solution to the challenges faced by the academic publishing industry. By leveraging blockchain technology, smart contracts, and decentralized storage, the platform ensures transparency, reduces costs, and enhances the security and integrity of academic research.
